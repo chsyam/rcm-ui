@@ -1,0 +1,12 @@
+.filterButtons {
+    display: flex;
+    gap: 20px;
+    margin: 20px 0;
+}
+
+.filterButtons .filter {
+    padding: 5px;
+    border: 1px solid gray;
+    border-radius: 10px;
+    cursor: pointer;
+}
