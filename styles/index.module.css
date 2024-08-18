@@ -1,10 +1,24 @@
+.bodyContainer {
+    width: 100%;
+    height: 80vh;
+    margin: 10px;
+}
+
+.tableContainer {
+    height: 100%;
+    width: 98%;
+    overflow-y: auto;
+    overflow-x: auto;
+    margin: 20px 0 0 0;
+}
+
 .tableContainer table {
-    height: 400px;
     overflow: scroll;
     border: 1px solid #777777;
     border-collapse: collapse;
     user-select: none;
     text-align: center;
+    box-shadow: 1px 1px 8px gray;
 }
 
 .tableContainer table th {
@@ -53,4 +67,12 @@
 .tableContainer table th:nth-child(1) {
     background: #ffebb5;
     text-align: left;
+}
+
+.tableContainer table td:nth-child(1) div {
+    color: #FFF;
+    background-color: #018989;
+    padding: 2px 0;
+    border-radius: 5px;
+    cursor: pointer;
 }
