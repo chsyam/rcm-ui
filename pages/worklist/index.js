@@ -45,10 +45,10 @@ export default function WorkList({ worklistData }) {
         return statusStyles;
     }
 
-    const handleUpdateStatus = (controlId, appId, notes, progress_status, result, resultReason) => {
+    const handleUpdateStatus = (CNTRL_ID, APP_ID, notes, progress_status, result, resultReason) => {
         router.replace({
             pathname: '/update',
-            query: { controlId: controlId, appId: appId, notes: notes, progress_status: progress_status, result: result, resultReason: resultReason }
+            query: { CNTRL_ID: CNTRL_ID, APP_ID: APP_ID, notes: notes, progress_status: progress_status, result: result, resultReason: resultReason }
         })
     }
 
@@ -94,7 +94,6 @@ export async function getServerSideProps() {
         const worklistData = await axios.get(`http://localhost:75/worklist-data`, {
             params: { ownerName: 'user2' }
         });
-        console.log(worklistData.data);
         return {
             props: {
                 worklistData: worklistData.data

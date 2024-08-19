@@ -4,28 +4,15 @@ import axios from "axios";
 import { useRouter } from "next/router";
 import styles from "@/styles/AppData.module.css"
 
-export default function GetData({ resData }) {
+export default function GetData({ data }) {
     const router = useRouter();
-    const appId = router.query.appName;
-    const [appDataById, setAppDataById] = useState([]);
-    const [controlsData, setControlsData] = useState([]);
+    const [appMetadata, setAppMetadata] = useState([]);
+    const [appControlsData, setAppControlsData] = useState([]);
 
     useEffect(() => {
-        try {
-            resData[0]['appsData'].map((app, index) => {
-                app[0] === appId && setAppDataById(app);
-            })
-            let res = [];
-            resData[0]['allApplicationData'].map((app, index) => {
-                app[0] === appId && res.push(app);
-            })
-            setControlsData(res);
-        } catch (error) {
-            setControlsData([])
-            setAppDataById([])
-            console.log(error);
-        }
-    }, [appId, resData])
+        setAppMetadata(data?.appMetadata);
+        setAppControlsData(data?.appData);
+    }, [data])
 
     const handleDateFormat = (dateString) => {
         const date = new Date(dateString);
@@ -48,29 +35,30 @@ export default function GetData({ resData }) {
             justifyContent: 'center',
             alignItems: 'center'
         }
-        if (status === 'Completed') {
+        if (status === 'Updated') {
             statusStyles['backgroundColor'] = 'green'
         } else if (status === 'Update') {
             statusStyles['backgroundColor'] = 'blue'
         } else if (status === 'Overdue') {
             statusStyles['backgroundColor'] = 'red'
-        } else if (status === 'In Progress') {
-            statusStyles['backgroundColor'] = 'yellow'
+        } else if (status === 'Inprog') {
+            statusStyles['backgroundColor'] = 'yellow',
+                statusStyles['color'] = 'black'
         }
         return statusStyles;
     }
 
-    const handleReportClick = (appId) => {
+    const handleReportClick = (APP_ID) => {
         router.replace({
             pathname: '/report',
-            query: { appId: appId }
+            query: { APP_ID: APP_ID }
         })
     }
 
-    const handleUpdateStatus = (controlId, appId, notes, progress_status, result, resultReason) => {
+    const handleUpdateStatus = (CNTRL_ID, APP_ID) => {
         router.replace({
             pathname: '/update',
-            query: { controlId: controlId, appId: appId, notes: notes, progress_status: progress_status, result: result, resultReason: resultReason }
+            query: { CNTRL_ID: CNTRL_ID, APP_ID: APP_ID }
         })
     }
 
@@ -78,26 +66,28 @@ export default function GetData({ resData }) {
         <div>
             <Navbar />
             <div className={styles.menuSection}>
-                <div className={styles.reportButton} onClick={() => { handleReportClick(appDataById[0]) }}>Report</div>
+                <div className={styles.reportButton}
+                    onClick={() => { handleReportClick(appMetadata[0]) }}
+                >Report</div>
             </div>
             <div className={styles.appDataSection}>
                 <table border={1}>
                     <tbody>
                         <tr>
                             <td>Application Id</td>
-                            <td>{appDataById[0]}</td>
+                            <td>{appMetadata[0]}</td>
                         </tr>
                         <tr>
                             <td>Application Name</td>
-                            <td>{appDataById[3]}</td>
+                            <td>{appMetadata[3]}</td>
                         </tr>
                         <tr>
                             <td>Application Brand</td>
-                            <td>{appDataById[2]}</td>
+                            <td>{appMetadata[2]}</td>
                         </tr>
                         <tr>
                             <td>Application Owner</td>
-                            <td>{appDataById[4]}</td>
+                            <td>{appMetadata[4]}</td>
                         </tr>
                     </tbody>
                 </table>
@@ -114,14 +104,18 @@ export default function GetData({ resData }) {
                     </thead>
                     <tbody>
                         {
-                            controlsData.map((controlRow, index) =>
+                            appControlsData.map((controlRow, index) =>
                             (
                                 <tr key={index}>
                                     <td>{controlRow[2]}</td>
                                     <td>{handleDateFormat(controlRow[5])}</td>
                                     <td>{handleDateFormat(controlRow[4])}</td>
                                     <td>
-                                        <div onClick={() => handleUpdateStatus(controlRow[2], controlRow[0], controlRow[8], controlRow[9], controlRow[10], controlRow[11])} style={getStyles(controlRow[9])}>{controlRow[9]}</div>
+                                        <div
+                                            onClick={() => handleUpdateStatus(controlRow[2], controlRow[0], controlRow[8], controlRow[9], controlRow[10], controlRow[11], controlRow[7])}
+                                            style={getStyles(controlRow[9])}
+                                        >{controlRow[9]}
+                                        </div>
                                     </td>
                                 </tr>
                             ))
@@ -133,19 +127,22 @@ export default function GetData({ resData }) {
     );
 }
 
-export async function getServerSideProps() {
+export async function getServerSideProps(context) {
+    const params = context.query;
+    console.log(params);
+
     try {
-        const dashboardData = await axios.get(`http://localhost:75/app-data`);
+        const getAppMetadata = await axios.post('http://localhost:75/api/get-app-controls', params);
         return {
             props: {
-                resData: dashboardData.data
+                data: getAppMetadata.data
             }
         }
     } catch (error) {
         console.log(error);
         return {
             props: {
-                dashboardData: []
+                data: []
             }
         }
     }

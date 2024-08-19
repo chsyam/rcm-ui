@@ -86,7 +86,16 @@ export default function StatusTable({
     const handleAppClick = (appName) => {
         router.push({
             pathname: `getdata/`, query: {
-                appName: appName
+                APP_ID: appName
+            }
+        })
+    }
+
+    const handleUpdateStatus = (APP_ID, CNTRL_ID) => {
+        router.push({
+            pathname: `update/`, query: {
+                APP_ID: APP_ID,
+                CNTRL_ID: CNTRL_ID
             }
         })
     }
@@ -137,7 +146,8 @@ export default function StatusTable({
                                                         {
                                                             cell && cell !== 'NAN' && (
                                                                 <div onClick={() => {
-                                                                    tdIndex === 0 && handleAppClick(cell)
+                                                                    tdIndex === 0 && handleAppClick(cell);
+                                                                    !madatoryRows.includes(tdIndex) && handleUpdateStatus(row[0], columnNames[tdIndex])
                                                                 }}
                                                                     style={tdIndex !== 0 ? tableCell(cell) : {}}>
                                                                     {madatoryRows.includes(tdIndex) && cell}

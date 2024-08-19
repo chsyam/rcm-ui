@@ -1,21 +1,49 @@
 import { useRouter } from "next/router"
 import styles from "@/styles/AppData.module.css"
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Navbar from "@/components/Navbar";
+import axios from "axios";
 
-export default function UpdateStatus() {
+export default function UpdateStatus({ data }) {
+    console.log("appMetadata", data);
     const router = useRouter();
     const params = router.query;
-    const showData = ['Completed', 'InProg'];
+    const [showData, setShowData] = useState(['Updated', 'InProg']);
+    const [appMetadata, setAppMetadata] = useState([]);
+    const [appData, setAppData] = useState([]);
+
+    useEffect(() => {
+        setAppMetadata(data?.appMetadata);
+        setAppData(data?.appData);
+    }, [data])
 
     const [formData, setFormData] = useState({
-        APP_ID: params.appId || "",
-        CNTRL_ID: params.controlId || '',
-        NOTES: showData.includes(params.progress_status) ? params.notes || "" : '',
-        RESULT: showData.includes(params.progress_status) ? params.result || "none" : 'select',
-        RESULT_REASON: showData.includes(params.progress_status) ? params.resultReason || "" : '',
-        PROGRESS_STATUS: params.progress_status || ""
+        APP_ID: params.APP_ID || "",
+        CNTRL_ID: params.CNTRL_ID || '',
+        NOTES: showData.includes(appData[9]) ? appData[8] : '',
+        RESULT: showData.includes(appData[9]) ? appData[10] || "none" : 'select',
+        RESULT_REASON: showData.includes(appData[9]) ? appData[11] : '',
+        PROCESS_STATUS: appData[9] || '',
+        ARTIFACT_URL: showData.includes(appData[9]) ? appData[7] : ''
     })
+
+    useEffect(() => {
+        function handleFormData() {
+            const newFormData = {
+                ...formData,
+                NOTES: showData.includes(appData[9]) ? appData[8] : '',
+                RESULT: showData.includes(appData[9]) ? appData[10] || "none" : 'select',
+                RESULT_REASON: showData.includes(appData[9]) ? appData[11] : '',
+                PROCESS_STATUS: appData[9] || '',
+                ARTIFACT_URL: showData.includes(appData[9]) ? appData[7] : ''
+            };
+
+            if (JSON.stringify(formData) !== JSON.stringify(newFormData)) {
+                setFormData(newFormData);
+            }
+        }
+        handleFormData();
+    }, [appData, formData, showData]);
 
     const handleChange = (e) => {
         setFormData({
@@ -24,9 +52,15 @@ export default function UpdateStatus() {
         })
     }
 
-    const handleSubmit = (e) => {
+    const handleSubmit = async (e) => {
         e.preventDefault();
-        console.log(formData)
+        console.log(formData);
+        try {
+            const response = await axios.post('http://localhost:75/update-status', formData);
+            console.log(response);
+        } catch (error) {
+            console.error('Error:', error);
+        }
     }
 
     return (
@@ -48,6 +82,13 @@ export default function UpdateStatus() {
                         <textarea cols={50} rows={4}
                             value={formData.NOTES}
                             onChange={(e) => handleChange(e)} type="text" id="NOTES" name="NOTES" required
+                        />
+                    </div>
+                    <div>
+                        <label htmlFor="ARTIFACT_URL">Artifact URL</label><br />
+                        <textarea cols={50} rows={4}
+                            value={formData.ARTIFACT_URL}
+                            onChange={(e) => handleChange(e)} type="text" id="ARTIFACT_URL" name="ARTIFACT_URL" required
                         />
                     </div>
                     <div>
@@ -76,4 +117,16 @@ export default function UpdateStatus() {
             </div >
         </div >
     )
+}
+
+export async function getServerSideProps(context) {
+    const params = context.query;
+    console.log(params);
+    const getAppMetadata = await axios.post('http://localhost:75/app-data', params);
+
+    return {
+        props: {
+            data: getAppMetadata.data || []
+        }
+    }
 }
