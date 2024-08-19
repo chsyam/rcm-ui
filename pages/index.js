@@ -5,7 +5,7 @@ import FilterSection from "./FilterSection";
 import styles from "@/styles/index.module.css"
 import Navbar from "@/components/Navbar";
 
-export default function Home({ dashboardData }) {
+export default function Home({ data }) {
     const [isClicked, setIsClicked] = useState([]);
     const [madatoryRows, setMandatoryRows] = useState([]);
     const [appSearch, setAppSearch] = useState("");
@@ -15,6 +15,8 @@ export default function Home({ dashboardData }) {
     const [riskRow, setRiskRow] = useState([]);
     const [tableBody, setTableBody] = useState([]);
     const [keyControlRows, setKeyControlRows] = useState([]);
+    const [allControls, setAllControls] = useState([]);
+    const [userFilter, setUserFilter] = useState(false);
 
     const [regionFilter, setRegionFilter] = useState([]);
     const [soxInScope, setSoxInScope] = useState(false);
@@ -27,12 +29,27 @@ export default function Home({ dashboardData }) {
     const [keyControl, setKeyControl] = useState(false);
 
     useEffect(() => {
-        setColumnNames(dashboardData[0][0].column_headings);
-        setFrequencyRow(dashboardData[0][0].frequency);
-        setRiskRow(dashboardData[0][0].risk);
-        setTableBody(dashboardData[0][0].records);
-        setKeyControlRows(dashboardData[0][0].keys);
-    }, [dashboardData, regionFilter, soxInScope])
+        function handleAllControls() {
+            let temp = {};
+            data?.all_controls.forEach((control) => {
+                let username = control[12]
+                let APP_ID = control[0]
+                let CNTRL_ID = control[2]
+                if (temp.hasOwnProperty(username)) {
+                    temp[username][APP_ID].push(CNTRL_ID)
+                } else {
+                    temp[username] = { [APP_ID]: [CNTRL_ID] }
+                };
+            });
+            setAllControls(temp)
+        }
+        handleAllControls()
+        setColumnNames(data?.column_headings);
+        setFrequencyRow(data?.frequency);
+        setRiskRow(data?.risk);
+        setTableBody(data?.records);
+        setKeyControlRows(data?.keys);
+    }, [data, regionFilter, soxInScope])
 
     useEffect(() => {
         function handleIndices() {
@@ -78,6 +95,8 @@ export default function Home({ dashboardData }) {
                 setIsClicked={setIsClicked}
                 appSearch={appSearch}
                 setAppSearch={setAppSearch}
+                userFilter={userFilter}
+                setUserFilter={setUserFilter}
             />
             <StatusTable
                 columnNames={columnNames}
@@ -97,6 +116,8 @@ export default function Home({ dashboardData }) {
                 setIsClicked={setIsClicked}
                 madatoryRows={madatoryRows}
                 appSearch={appSearch}
+                userFilter={userFilter}
+                allControls={allControls}
             />
         </div>
     );
@@ -104,17 +125,19 @@ export default function Home({ dashboardData }) {
 
 export async function getServerSideProps() {
     try {
-        const dashboardData = await axios.get("http://localhost:75/dashboard-data");
+        const response = await axios.get("http://localhost:75/dashboard-data");
+        // console.log(response.data)
+
         return {
             props: {
-                dashboardData: [dashboardData.data]
+                data: response?.data || {}
             }
         }
     } catch (error) {
         console.log(error);
         return {
             props: {
-                dashboardData: []
+                data: {}
             }
         }
     }

@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import styles from "./../styles/Filters.module.css"
+import { FaRegUser } from "react-icons/fa";
 
 export default function FilterSection({
     setRegionFilter,
@@ -15,7 +16,9 @@ export default function FilterSection({
     isClicked,
     setIsClicked,
     appSearch,
-    setAppSearch
+    setAppSearch,
+    userFilter,
+    setUserFilter
 }) {
     const handleRegionFiletr = (regionName) => {
         if (regionFilter.includes(regionName)) {
@@ -48,7 +51,7 @@ export default function FilterSection({
             setIsClicked([...isClicked, status]);
         }
     }
-    
+
     return (
         <div className={styles.filterSection}>
             <div className={styles.filterButtons}>
@@ -89,6 +92,10 @@ export default function FilterSection({
                 >Key Control</div>
             </div>
             <div className={styles.filterButtons}>
+                <div onClick={() => setUserFilter(!userFilter)}>
+                    <FaRegUser /><br />
+                </div>
+                {userFilter.toString()}
                 <div className={styles.filter}
                     style={isClicked?.includes("Overdue") ? { backgroundColor: '#FFF', border: '2px solid red', color: 'red' } : { backgroundColor: "red" }}
                     onClick={() => handleAppStatus("Overdue")}

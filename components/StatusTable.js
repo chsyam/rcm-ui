@@ -17,10 +17,17 @@ export default function StatusTable({
     keyControlIndices,
     isClicked,
     madatoryRows,
-    appSearch
+    appSearch,
+    userFilter,
+    allControls
 }) {
     const [indicesToShow, setIndicesToShow] = useState([]);
     const router = useRouter();
+    const [username, setUsername] = useState('user3')
+    const [allowedControls, setAllowedControls] = useState([]);
+    const [allowedControlIndices, setAllowedControlIndices] = useState([]);
+    const [allowedApps, setAllowedApps] = useState([]);
+
     useEffect(() => {
         function handleIndices() {
             let indices = [0, tableBody[0]?.length - 1, tableBody[0]?.length - 2];
@@ -47,7 +54,37 @@ export default function StatusTable({
             return indices;
         }
         setIndicesToShow(handleIndices());
-    }, [periodicFilter, transactionalFilter, periodicIndices, transactionalIndices, tableBody, keyControl, keyControlIndices])
+    }, [periodicFilter, transactionalFilter, periodicIndices, transactionalIndices, tableBody, keyControl, keyControlIndices, userFilter])
+
+    useEffect(() => {
+        if (userFilter) {
+            if (username in allControls) {
+                setAllowedApps(allControls[username])
+            }
+        } else {
+            setAllowedApps([]);
+        }
+    }, [allControls, userFilter, username])
+
+    useEffect(() => {
+        let temp = [];
+        for (let app in allowedApps) {
+            temp = temp + allowedApps[app]
+        }
+        setAllowedControls(temp);
+    }, [allowedApps])
+
+    useEffect(() => {
+        let temp = [0];
+        if (userFilter) {
+            columnNames.map((col, index) => {
+                allowedControls.includes(col) && temp.push(index);
+            })
+            setAllowedControlIndices(temp);
+        } else {
+            setAllowedControlIndices([])
+        }
+    }, [allowedApps, allowedControls, columnNames, userFilter])
 
     function tableCell(cellValue) {
         return (
@@ -83,6 +120,7 @@ export default function StatusTable({
         }
         return false;
     }
+
     const handleAppClick = (appName) => {
         router.push({
             pathname: `getdata/`, query: {
@@ -100,22 +138,31 @@ export default function StatusTable({
         })
     }
 
+    console.log(allowedControlIndices)
+
     return (
         <div className={styles.tableContainer}>
+            {
+                allowedControlIndices.map((control, index) =>
+                    <span key={index}>{index}</span>
+                )
+            }
             <table>
                 <thead>
                     <tr>
                         {
                             columnNames.map((colName, index) =>
-                                indicesToShow.includes(index) &&
-                                <th key={index}>{colName}</th>
+                                indicesToShow.includes(index) && ![columnNames?.length - 1, columnNames?.length - 2].includes(index) &&
+                                (allowedControlIndices.length === 0 || allowedControlIndices.includes(index)) && (
+                                    <th key={index}>{colName}</th>
+                                )
                             )
                         }
                     </tr>
                     <tr>
                         {
                             frequencyRow.map((freq, index) =>
-                                indicesToShow.includes(index) &&
+                                indicesToShow.includes(index) && ![frequencyRow?.length - 1, frequencyRow?.length - 2].includes(index) && (allowedControlIndices.length === 0 || allowedControlIndices.includes(index)) &&
                                 <th key={index}>{freq}</th>
                             )
                         }
@@ -123,7 +170,7 @@ export default function StatusTable({
                     <tr>
                         {
                             riskRow.map((risk, index) =>
-                                indicesToShow.includes(index) &&
+                                indicesToShow.includes(index) && ![riskRow?.length - 1, riskRow?.length - 2].includes(index) && (allowedControlIndices.length === 0 || allowedControlIndices.includes(index)) &&
                                 <th key={index}>{risk}</th>
                             )
                         }
@@ -135,28 +182,31 @@ export default function StatusTable({
                             row &&
                             (regionFilter.length === 0 || regionFilter.includes(row[row.length - 2])) && (!soxInScope || row[row.length - 1] === 'Y') &&
                             (isClicked.length === 0 || handleStatusCheck(row)) &&
-                            (appSearch == "" || row[0].toLowerCase().includes(appSearch.toLowerCase())) && (
+                            (appSearch == "" || row[0].toLowerCase().includes(appSearch.toLowerCase())) &&
+                            (allowedApps.length === 0 || row[0] in allowedApps) && (
                                 <tr key={index}>
                                     {
                                         row.map((cell, tdIndex) =>
-                                            indicesToShow.includes(tdIndex) &&
-                                            <td key={tdIndex}>
-                                                {
-                                                    <div style={tdStyles}>
-                                                        {
-                                                            cell && cell !== 'NAN' && (
-                                                                <div onClick={() => {
-                                                                    tdIndex === 0 && handleAppClick(cell);
-                                                                    !madatoryRows.includes(tdIndex) && handleUpdateStatus(row[0], columnNames[tdIndex])
-                                                                }}
-                                                                    style={tdIndex !== 0 ? tableCell(cell) : {}}>
-                                                                    {madatoryRows.includes(tdIndex) && cell}
-                                                                </div>
-                                                            )
-                                                        }
-                                                    </div>
-                                                }
-                                            </td>
+                                            indicesToShow.includes(tdIndex) && ![frequencyRow?.length - 1, frequencyRow?.length - 2].includes(tdIndex) && (allowedControlIndices.length === 0 || allowedControlIndices.includes(tdIndex)) &&
+                                            (
+                                                <td key={tdIndex}>
+                                                    {
+                                                        <div style={tdStyles}>
+                                                            {
+                                                                cell && cell !== 'NAN' && (
+                                                                    <div onClick={() => {
+                                                                        tdIndex === 0 && handleAppClick(cell);
+                                                                        !madatoryRows.includes(tdIndex) && handleUpdateStatus(row[0], columnNames[tdIndex])
+                                                                    }}
+                                                                        style={tdIndex !== 0 ? tableCell(cell) : {}}>
+                                                                        {madatoryRows.includes(tdIndex) && cell}
+                                                                    </div>
+                                                                )
+                                                            }
+                                                        </div>
+                                                    }
+                                                </td>
+                                            )
                                         )
                                     }
                                 </tr>
