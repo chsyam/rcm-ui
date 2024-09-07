@@ -5,7 +5,7 @@ import FilterSection from "./FilterSection";
 import styles from "@/styles/index.module.css"
 import Navbar from "@/components/Navbar";
 
-export default function Home({ data }) {
+export default function Home({ data, report }) {
     const [isClicked, setIsClicked] = useState([]);
     const [madatoryRows, setMandatoryRows] = useState([]);
     const [appSearch, setAppSearch] = useState("");
@@ -14,6 +14,7 @@ export default function Home({ data }) {
     const [frequencyRow, setFrequencyRow] = useState([]);
     const [riskRow, setRiskRow] = useState([]);
     const [tableBody, setTableBody] = useState([]);
+    const [reportData, setReportData] = useState([]);
     const [keyControlRows, setKeyControlRows] = useState([]);
     const [allControls, setAllControls] = useState([]);
     const [userFilter, setUserFilter] = useState(false);
@@ -22,6 +23,7 @@ export default function Home({ data }) {
     const [soxInScope, setSoxInScope] = useState(false);
     const [periodicFilter, setPeriodicFilter] = useState(false);
     const [transactionalFilter, setTransactionalFilter] = useState(false);
+    const [dateFilter, setDateFilter] = useState(false);
 
     const [periodicIndices, setPeriodicIndices] = useState([]);
     const [transactionalIndices, setTransactionalIndices] = useState([]);
@@ -31,7 +33,7 @@ export default function Home({ data }) {
     useEffect(() => {
         function handleAllControls() {
             let temp = {};
-            data?.all_controls.forEach((control) => {
+            data?.all_controls?.forEach((control) => {
                 let username = control[12]
                 let APP_ID = control[0]
                 let CNTRL_ID = control[2]
@@ -48,8 +50,9 @@ export default function Home({ data }) {
         setFrequencyRow(data?.frequency);
         setRiskRow(data?.risk);
         setTableBody(data?.records);
+        setReportData(report[0]?.report)
         setKeyControlRows(data?.keys);
-    }, [data, regionFilter, soxInScope])
+    }, [data, regionFilter, report, soxInScope])
 
     useEffect(() => {
         function handleIndices() {
@@ -97,6 +100,8 @@ export default function Home({ data }) {
                 setAppSearch={setAppSearch}
                 userFilter={userFilter}
                 setUserFilter={setUserFilter}
+                dateFilter={dateFilter}
+                setDateFilter={setDateFilter}
             />
             <StatusTable
                 columnNames={columnNames}
@@ -104,6 +109,7 @@ export default function Home({ data }) {
                 riskRow={riskRow}
                 keyControlRows={keyControlRows}
                 tableBody={tableBody}
+                reportData={reportData}
                 regionFilter={regionFilter}
                 soxInScope={soxInScope}
                 periodicFilter={periodicFilter}
@@ -118,26 +124,44 @@ export default function Home({ data }) {
                 appSearch={appSearch}
                 userFilter={userFilter}
                 allControls={allControls}
+                dateFilter={dateFilter}
             />
         </div>
     );
 }
 
 export async function getServerSideProps() {
+    let dashboard = {};
     try {
-        const response = await axios.get("http://localhost:75/dashboard-data");
-        // console.log(response.data)
+        dashboard = await axios.get("http://localhost:75/dashboard-data");
+    } catch (error) {
+        dashboard = {
+            data: {}
+        }
+    }
 
+    let report = {};
+    try {
+        report = await axios.get(`http://localhost:75/report`);
+    } catch (error) {
+        report = {
+            data: {}
+        }
+    }
+
+    try {
         return {
             props: {
-                data: response?.data || {}
+                data: dashboard?.data || {},
+                report: report?.data || {}
             }
         }
     } catch (error) {
         console.log(error);
         return {
             props: {
-                data: {}
+                data: {},
+                report: {}
             }
         }
     }

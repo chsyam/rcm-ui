@@ -7,6 +7,7 @@ export default function StatusTable({
     frequencyRow,
     riskRow,
     tableBody,
+    reportData,
     regionFilter,
     soxInScope,
     periodicFilter,
@@ -19,14 +20,17 @@ export default function StatusTable({
     madatoryRows,
     appSearch,
     userFilter,
-    allControls
+    allControls,
+    dateFilter
 }) {
     const [indicesToShow, setIndicesToShow] = useState([]);
     const router = useRouter();
-    const [username, setUsername] = useState('user3')
+    const [username, setUsername] = useState('user1')
     const [allowedControls, setAllowedControls] = useState([]);
     const [allowedControlIndices, setAllowedControlIndices] = useState([]);
     const [allowedApps, setAllowedApps] = useState([]);
+    const [filteredApps, setFilteredApps] = useState(new Set())
+    const [filteredControls, setFilteredControls] = useState(new Set())
 
     useEffect(() => {
         function handleIndices() {
@@ -54,7 +58,7 @@ export default function StatusTable({
             return indices;
         }
         setIndicesToShow(handleIndices());
-    }, [periodicFilter, transactionalFilter, periodicIndices, transactionalIndices, tableBody, keyControl, keyControlIndices, userFilter])
+    }, [periodicFilter, transactionalFilter, periodicIndices, transactionalIndices, tableBody, keyControl, keyControlIndices, userFilter, dateFilter, reportData])
 
     useEffect(() => {
         if (userFilter) {
@@ -138,7 +142,33 @@ export default function StatusTable({
         })
     }
 
-    console.log(allowedControlIndices)
+    useEffect(() => {
+        function handleDateChange() {
+            let tempApps = new Set();
+            let tempControlFilters = new Set();
+            reportData.map((row) => {
+                const modifiedDate = new Date(row[15]);
+                const serverMonthYear = `${modifiedDate.getFullYear()}-${(modifiedDate.getMonth() + 1).toString().padStart(2, '0')}`;
+                if (serverMonthYear === dateFilter) {
+                    tempApps.add(row[0])
+                    tempControlFilters.add(row[2])
+                }
+            })
+            return {
+                "apps": tempApps,
+                "controls": tempControlFilters
+            }
+        }
+        if (dateFilter) {
+            const res = handleDateChange()
+            setFilteredApps(res.apps)
+            setFilteredControls(res.controls)
+        }
+    }, [dateFilter, reportData])
+
+    useEffect(() => {
+        console.log(filteredApps, filteredControls)
+    }, [filteredApps, filteredControls])
 
     return (
         <div className={styles.tableContainer}>
@@ -151,26 +181,34 @@ export default function StatusTable({
                 <thead>
                     <tr>
                         {
-                            columnNames.map((colName, index) =>
+                            columnNames?.map((colName, index) =>
                                 indicesToShow.includes(index) && ![columnNames?.length - 1, columnNames?.length - 2].includes(index) &&
                                 (allowedControlIndices.length === 0 || allowedControlIndices.includes(index)) && (
-                                    <th key={index}>{colName}</th>
+                                    index === 0 || (!dateFilter || filteredControls.has(colName))
+                                ) && (
+                                    <th key={index}>
+                                        {colName}
+                                    </th>
                                 )
                             )
                         }
                     </tr>
                     <tr>
                         {
-                            frequencyRow.map((freq, index) =>
-                                indicesToShow.includes(index) && ![frequencyRow?.length - 1, frequencyRow?.length - 2].includes(index) && (allowedControlIndices.length === 0 || allowedControlIndices.includes(index)) &&
+                            frequencyRow?.map((freq, index) =>
+                                indicesToShow.includes(index) && ![frequencyRow?.length - 1, frequencyRow?.length - 2].includes(index) && (allowedControlIndices.length === 0 || allowedControlIndices.includes(index)) && (
+                                    index === 0 || (!dateFilter || filteredControls.has(columnNames[index]))
+                                ) &&
                                 <th key={index}>{freq}</th>
                             )
                         }
                     </tr>
                     <tr>
                         {
-                            riskRow.map((risk, index) =>
-                                indicesToShow.includes(index) && ![riskRow?.length - 1, riskRow?.length - 2].includes(index) && (allowedControlIndices.length === 0 || allowedControlIndices.includes(index)) &&
+                            riskRow?.map((risk, index) =>
+                                indicesToShow.includes(index) && ![riskRow?.length - 1, riskRow?.length - 2].includes(index) && (allowedControlIndices.length === 0 || allowedControlIndices.includes(index)) && (
+                                    index === 0 || (!dateFilter || filteredControls.has(columnNames[index]))
+                                ) &&
                                 <th key={index}>{risk}</th>
                             )
                         }
@@ -178,16 +216,20 @@ export default function StatusTable({
                 </thead>
                 <tbody>
                     {
-                        tableBody.map((row, index) =>
+                        tableBody?.map((row, index) =>
                             row &&
                             (regionFilter.length === 0 || regionFilter.includes(row[row.length - 2])) && (!soxInScope || row[row.length - 1] === 'Y') &&
                             (isClicked.length === 0 || handleStatusCheck(row)) &&
                             (appSearch == "" || row[0].toLowerCase().includes(appSearch.toLowerCase())) &&
                             (allowedApps.length === 0 || row[0] in allowedApps) && (
+                                !dateFilter || (filteredApps.has(row[0]))
+                            ) && (
                                 <tr key={index}>
                                     {
                                         row.map((cell, tdIndex) =>
-                                            indicesToShow.includes(tdIndex) && ![frequencyRow?.length - 1, frequencyRow?.length - 2].includes(tdIndex) && (allowedControlIndices.length === 0 || allowedControlIndices.includes(tdIndex)) &&
+                                            indicesToShow.includes(tdIndex) && ![frequencyRow?.length - 1, frequencyRow?.length - 2].includes(tdIndex) && (allowedControlIndices.length === 0 || allowedControlIndices.includes(tdIndex)) && (
+                                                tdIndex === 0 || (!dateFilter || filteredControls.has(columnNames[tdIndex]))
+                                            ) &&
                                             (
                                                 <td key={tdIndex}>
                                                     {

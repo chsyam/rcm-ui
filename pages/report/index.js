@@ -1,6 +1,5 @@
 import Navbar from "@/components/Navbar";
 import axios from "axios";
-import { useRouter } from "next/router";
 import { useEffect, useState } from "react";
 import styles from "@/styles/AppData.module.css"
 
@@ -14,11 +13,9 @@ export default function AppReport({ all_logs }) {
         }, [all_logs])
     } catch (error) {
         setReportData([]);
-        setAppMetadata([])
+        setAppMetadata([]);
         console.log(error);
     }
-    const router = useRouter();
-    const appId = router?.query?.appId;
 
     return (
         <div>
@@ -28,19 +25,19 @@ export default function AppReport({ all_logs }) {
                     <tbody>
                         <tr>
                             <td>Application Id</td>
-                            <td>{appMetadata[0]}</td>
+                            <td>{appMetadata && appMetadata[0]}</td>
                         </tr>
                         <tr>
                             <td>Application Name</td>
-                            <td>{appMetadata[3]}</td>
+                            <td>{appMetadata && appMetadata[3]}</td>
                         </tr>
                         <tr>
                             <td>Application Brand</td>
-                            <td>{appMetadata[2]}</td>
+                            <td>{appMetadata && appMetadata[2]}</td>
                         </tr>
                         <tr>
                             <td>Application Owner</td>
-                            <td>{appMetadata[4]}</td>
+                            <td>{appMetadata && appMetadata[4]}</td>
                         </tr>
                     </tbody>
                 </table>
@@ -58,7 +55,7 @@ export default function AppReport({ all_logs }) {
                     </thead>
                     <tbody>
                         {
-                            reportData.map((report, index) =>
+                            reportData?.map((report, index) =>
                                 <tr key={index}>
                                     <td>{report[2]}</td>
                                     <td>{report[7]}</td>
@@ -75,13 +72,14 @@ export default function AppReport({ all_logs }) {
     )
 }
 
-
 export async function getServerSideProps(context) {
-    const { appId } = context.query;
+    const { APP_ID } = context.query;
     try {
         const appReport = await axios.get(`http://localhost:75/report`, {
-            params: { appId }
+            params: { APP_ID }
         });
+
+        console.log("appReport.data", appReport.data);
         return {
             props: {
                 all_logs: appReport.data

@@ -1,6 +1,7 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import styles from "./../styles/Filters.module.css"
 import { FaRegUser } from "react-icons/fa";
+import { MdOutlineCalendarMonth } from "react-icons/md";
 
 export default function FilterSection({
     setRegionFilter,
@@ -18,8 +19,11 @@ export default function FilterSection({
     appSearch,
     setAppSearch,
     userFilter,
-    setUserFilter
+    setUserFilter,
+    dateFilter,
+    setDateFilter
 }) {
+    const [showDateFilter, setShowDateFilter] = useState(false);
     const handleRegionFiletr = (regionName) => {
         if (regionFilter.includes(regionName)) {
             setRegionFilter(regionFilter.filter(item => item !== regionName));
@@ -74,19 +78,23 @@ export default function FilterSection({
                     style={regionFilter.includes("NAMER") ? { backgroundColor: "#008080", color: "#FFF" } : {}}
                     className={styles.filter}
                     onClick={() => handleRegionFiletr("NAMER")}> NA</div>
-                <div style={soxInScope ? { backgroundColor: "#008080", color: "#FFF" } : {}}
+                <div
+                    style={soxInScope ? { backgroundColor: "#008080", color: "#FFF" } : {}}
                     className={styles.filter}
                     onClick={() => handleSoxInScope()}
                 >SOX IN SCOPE</div>
-                <div style={transactionalFilter ? { backgroundColor: "#008080", color: "#FFF" } : {}}
+                <div
+                    style={transactionalFilter ? { backgroundColor: "#008080", color: "#FFF" } : {}}
                     className={styles.filter}
                     onClick={() => handleTransactionalFilter()}
                 >Transactional</div>
-                <div style={periodicFilter ? { backgroundColor: "#008080", color: "#FFF" } : {}}
+                <div
+                    style={periodicFilter ? { backgroundColor: "#008080", color: "#FFF" } : {}}
                     className={styles.filter}
                     onClick={() => handlePeriodicFilter()}
                 >Periodic</div>
-                <div style={keyControl ? { backgroundColor: "#008080", color: "#FFF" } : {}}
+                <div
+                    style={keyControl ? { backgroundColor: "#008080", color: "#FFF" } : {}}
                     className={styles.filter}
                     onClick={() => handleKeyControl()}
                 >Key Control</div>
@@ -116,6 +124,22 @@ export default function FilterSection({
             <div>
                 <input type="text" name="appSearch" value={appSearch} onChange={(e) => { setAppSearch(e.target.value) }} placeholder="Application Search" className={styles.search} />
             </div>
+            <div
+                style={{ background: showDateFilter ? "#008080" : {}, color: showDateFilter ? "#FFF" : {} }}
+                className={styles.showDateFilter} onClick={() => {
+                    showDateFilter ? window.location.reload() : setShowDateFilter(!showDateFilter)
+                }}>
+                <MdOutlineCalendarMonth />
+            </div>
+            {
+                showDateFilter && (
+                    <div
+                        style={{ userSelect: 'none' }}
+                    >
+                        <input value={dateFilter} onChange={(e) => setDateFilter(e.target.value)} className={styles.search} type="month" id="dateFilter" />
+                    </div>
+                )
+            }
         </div>
     )
 }
