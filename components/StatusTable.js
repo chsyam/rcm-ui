@@ -21,11 +21,12 @@ export default function StatusTable({
     appSearch,
     userFilter,
     allControls,
-    dateFilter
+    dateFilter,
+    userData
 }) {
     const [indicesToShow, setIndicesToShow] = useState([]);
     const router = useRouter();
-    const [username, setUsername] = useState('user1')
+    const [username, setUsername] = useState(userData?.username)
     const [allowedControls, setAllowedControls] = useState([]);
     const [allowedControlIndices, setAllowedControlIndices] = useState([]);
     const [allowedApps, setAllowedApps] = useState([]);

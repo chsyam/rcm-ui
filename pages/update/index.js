@@ -1,11 +1,10 @@
 import { useRouter } from "next/router"
-import styles from "@/styles/AppData.module.css"
 import { useEffect, useState } from "react";
 import Navbar from "@/components/Navbar";
 import axios from "axios";
+import styles from "./Update.module.css";
 
 export default function UpdateStatus({ data }) {
-    console.log("appMetadata", data);
     const router = useRouter();
     const params = router.query;
     const [showData, setShowData] = useState(['Updated', 'InProg']);
@@ -66,55 +65,82 @@ export default function UpdateStatus({ data }) {
     return (
         <div>
             <Navbar />
-            <div className={styles.form}>
-                <form onSubmit={(e) => handleSubmit(e)}>
-                    <div>
-                        <label htmlFor="APP_ID">App Id</label><br />
-                        <input value={formData.APP_ID}
-                            onChange={(e) => handleChange(e)} type="text" id="APP_ID" name="APP_ID" readOnly={true} />
+            <div className={styles.formSection}>
+                <form className={styles.form} onSubmit={(e) => handleSubmit(e)}>
+                    <div className={styles.flexBlock}>
+                        <div className={styles.formElement}>
+                            <label htmlFor="APP_ID">App Id</label><br />
+                            <input value={formData.APP_ID}
+                                onChange={(e) => handleChange(e)}
+                                type="text" id="APP_ID" name="APP_ID" readOnly={true}
+                                style={{ cursor: 'not-allowed' }}
+                            />
+                        </div>
+                        <div className={styles.formElement}>
+                            <label htmlFor="CNTRL_ID">Control Id</label><br />
+                            <input value={formData.CNTRL_ID} onChange={(e) => handleChange(e)} type="text" id="CNTRL_ID" name="CNTRL_ID" readOnly={true}
+                                style={{ cursor: 'not-allowed' }}
+                            />
+                        </div>
                     </div>
-                    <div>
-                        <label htmlFor="CNTRL_ID">Control Id</label><br />
-                        <input value={formData.CNTRL_ID} onChange={(e) => handleChange(e)} type="text" id="CNTRL_ID" name="CNTRL_ID" readOnly={true} />
-                    </div>
-                    <div>
+                    <div className={styles.formElement}>
                         <label htmlFor="NOTES">Notes</label><br />
-                        <textarea cols={50} rows={4}
+                        <textarea rows={3}
                             value={formData.NOTES}
                             onChange={(e) => handleChange(e)} type="text" id="NOTES" name="NOTES" required
                         />
                     </div>
-                    <div>
+                    <div className={styles.formElement}>
                         <label htmlFor="ARTIFACT_URL">Artifact URL</label><br />
-                        <textarea cols={50} rows={4}
+                        <textarea rows={3}
                             value={formData.ARTIFACT_URL}
                             onChange={(e) => handleChange(e)} type="text" id="ARTIFACT_URL" name="ARTIFACT_URL" required
                         />
                     </div>
-                    <div>
+                    <div className={styles.formElement}>
+                        <label htmlFor="RESULT_REASON">Result Reason</label><br />
+                        <textarea rows={3}
+                            value={formData.RESULT_REASON}
+                            onChange={(e) => handleChange(e)} type="text" id="RESULT_REASON" name="RESULT_REASON" required />
+                    </div>
+                    <div className={styles.formElement}>
                         <label htmlFor="RESULT">Result</label><br />
-                        <select defaultValue={formData.RESULT} id="RESULT" name="RESULT"
+                        <select
+                            defaultChecked={formData.RESULT}
+                            id="RESULT" name="RESULT"
                             onChange={(e) => setFormData({
                                 ...formData, RESULT: e.target.value
                             })}
                         >
                             <option value='none'>Select</option>
-                            <option value='Green'>Green</option>
-                            <option value='Yellow'>Yellow</option>
-                            <option value='Red'>Red</option>
+                            <option
+                                // selected={formData.RESULT === 'Green' ? true : false}
+                                value='Green'
+                            >
+                                Green
+                            </option>
+                            <option
+                                // selected={formData.RESULT === 'Yellow' ? true : false}
+                                value='Yellow'
+                            >
+                                Yellow
+                            </option>
+                            <option
+                                // selected={formData.RESULT === 'Red' ? true : false}
+                                value='Red'
+                            >
+                                Red
+                            </option>
                         </select>
                     </div>
-                    <div>
-                        <label htmlFor="RESULT_REASON">Result Reason</label><br />
-                        <textarea cols={50} rows={4}
-                            value={formData.RESULT_REASON}
-                            onChange={(e) => handleChange(e)} type="text" id="RESULT_REASON" name="RESULT_REASON" required />
-                    </div>
-                    <div>
+                    <div className={styles.submitButton}>
                         <button type="submit">Update</button>
                     </div>
                 </form>
             </div >
+            <div>
+                <div></div>
+            </div>
         </div >
     )
 }

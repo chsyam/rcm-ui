@@ -32,7 +32,12 @@ export default function Navbar() {
                         isOpen && (
                             <div className={styles.profileSection}>
                                 <div className={styles.profileItem}>Profile</div>
-                                <div className={styles.profileItem}>Logout</div>
+                                <div className={styles.profileItem} onClick={
+                                    () => {
+                                        document.cookie = "token=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
+                                        document.location.href = "/login";
+                                    }
+                                }>Logout</div>
                             </div>
                         )
                     }

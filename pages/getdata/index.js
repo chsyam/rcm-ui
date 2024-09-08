@@ -3,8 +3,9 @@ import { useEffect, useState } from "react";
 import axios from "axios";
 import { useRouter } from "next/router";
 import styles from "@/styles/AppData.module.css"
+import { decrypt } from "../api/auth/lib";
 
-export default function GetData({ data }) {
+export default function GetData({ data, userData }) {
     const router = useRouter();
     const [appMetadata, setAppMetadata] = useState([]);
     const [appControlsData, setAppControlsData] = useState([]);
@@ -25,7 +26,7 @@ export default function GetData({ data }) {
         return `${formattedDay}-${formattedMonth}-${year}`;
     }
 
-    const getStyles = (status) => {
+    const getStyles = (status, owner) => {
         let statusStyles = {
             color: 'white',
             textAlign: 'center',
@@ -45,21 +46,32 @@ export default function GetData({ data }) {
             statusStyles['backgroundColor'] = 'yellow',
                 statusStyles['color'] = 'black'
         }
+        if (owner !== userData?.username) {
+            statusStyles['backgroundColor'] = 'none';
+            statusStyles['color'] = 'black';
+            statusStyles['border'] = '1px solid black';
+            statusStyles['cursor'] = 'not-allowed';
+        }
         return statusStyles;
     }
 
     const handleReportClick = (APP_ID) => {
-        router.replace({
+        router.push({
             pathname: '/report',
             query: { APP_ID: APP_ID }
         })
     }
 
-    const handleUpdateStatus = (CNTRL_ID, APP_ID) => {
-        router.replace({
-            pathname: '/update',
-            query: { CNTRL_ID: CNTRL_ID, APP_ID: APP_ID }
-        })
+    const handleUpdateStatus = (CNTRL_ID, APP_ID, OWNER) => {
+        if (OWNER !== userData?.username) {
+            alert('You are not authorized to update this control');
+            return;
+        } else {
+            router.push({
+                pathname: '/update',
+                query: { CNTRL_ID: CNTRL_ID, APP_ID: APP_ID }
+            })
+        }
     }
 
     return (
@@ -112,9 +124,15 @@ export default function GetData({ data }) {
                                     <td>{handleDateFormat(controlRow[4])}</td>
                                     <td>
                                         <div
-                                            onClick={() => handleUpdateStatus(controlRow[2], controlRow[0], controlRow[8], controlRow[9], controlRow[10], controlRow[11], controlRow[7])}
-                                            style={getStyles(controlRow[9])}
-                                        >{controlRow[9]}
+                                            onClick={() =>
+                                                handleUpdateStatus(
+                                                    controlRow[2],
+                                                    controlRow[0],
+                                                    controlRow[12]
+                                                )}
+                                            style={getStyles(controlRow[9], controlRow[12])}
+                                        >
+                                            {controlRow[9]}
                                         </div>
                                     </td>
                                 </tr>
@@ -131,18 +149,36 @@ export async function getServerSideProps(context) {
     const params = context.query;
     console.log(params);
 
+    const { req, res } = context;
+    const token = req?.cookies['token']
+    const payload = await decrypt(token)
+    if (!payload || payload === null || payload === undefined) {
+        res.setHeader('Set-Cookie', [
+            'token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT;',
+        ]);
+
+        return {
+            redirect: {
+                destination: '/login',
+                permanent: false
+            }
+        }
+    }
+
     try {
         const getAppMetadata = await axios.post('http://localhost:75/api/get-app-controls', params);
         return {
             props: {
-                data: getAppMetadata.data
+                data: getAppMetadata.data,
+                userData: payload
             }
         }
     } catch (error) {
         console.log(error);
         return {
             props: {
-                data: []
+                data: [],
+                userData: payload
             }
         }
     }

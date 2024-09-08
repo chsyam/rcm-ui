@@ -4,8 +4,9 @@ import StatusTable from "@/components/StatusTable";
 import FilterSection from "./FilterSection";
 import styles from "@/styles/index.module.css"
 import Navbar from "@/components/Navbar";
+import { decrypt } from "../api/auth/lib";
 
-export default function Home({ data, report }) {
+export default function Home({ data, report, userData }) {
     const [isClicked, setIsClicked] = useState([]);
     const [madatoryRows, setMandatoryRows] = useState([]);
     const [appSearch, setAppSearch] = useState("");
@@ -102,6 +103,7 @@ export default function Home({ data, report }) {
                 setUserFilter={setUserFilter}
                 dateFilter={dateFilter}
                 setDateFilter={setDateFilter}
+                userData={userData}
             />
             <StatusTable
                 columnNames={columnNames}
@@ -125,18 +127,35 @@ export default function Home({ data, report }) {
                 userFilter={userFilter}
                 allControls={allControls}
                 dateFilter={dateFilter}
+                userData={userData}
             />
         </div>
     );
 }
 
-export async function getServerSideProps() {
+export async function getServerSideProps(context) {
+    const { req, res } = context;
+    const token = req?.cookies['token']
+    const payload = await decrypt(token)
+    if (!payload || payload === null || payload === undefined) {
+        res.setHeader('Set-Cookie', [
+            'token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT;',
+        ]);
+        return {
+            redirect: {
+                destination: '/login',
+                permanent: false
+            }
+        }
+    }
+    console.log("payload =>", payload);
+
     let dashboard = {};
     try {
         dashboard = await axios.get("http://localhost:75/dashboard-data");
     } catch (error) {
         dashboard = {
-            data: {}
+            data: {},
         }
     }
 
@@ -145,7 +164,7 @@ export async function getServerSideProps() {
         report = await axios.get(`http://localhost:75/report`);
     } catch (error) {
         report = {
-            data: {}
+            data: {},
         }
     }
 
@@ -153,7 +172,8 @@ export async function getServerSideProps() {
         return {
             props: {
                 data: dashboard?.data || {},
-                report: report?.data || {}
+                report: report?.data || {},
+                userData: payload
             }
         }
     } catch (error) {
@@ -161,7 +181,8 @@ export async function getServerSideProps() {
         return {
             props: {
                 data: {},
-                report: {}
+                report: {},
+                userData: payload
             }
         }
     }

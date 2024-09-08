@@ -1,5 +1,5 @@
 import { useState } from "react";
-import styles from "./../styles/Filters.module.css"
+import styles from "./../../styles/Filters.module.css"
 import { FaRegUser } from "react-icons/fa";
 import { MdOutlineCalendarMonth } from "react-icons/md";
 

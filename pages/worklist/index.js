@@ -3,6 +3,7 @@ import axios from "axios";
 import styles from "@/styles/AppData.module.css"
 import { useEffect, useState } from "react";
 import { useRouter } from 'next/router';
+import { decrypt } from "../api/auth/lib";
 
 export default function WorkList({ worklistData }) {
     const [data, setData] = useState([]);
@@ -31,11 +32,12 @@ export default function WorkList({ worklistData }) {
             borderRadius: '5px',
             display: 'flex',
             justifyContent: 'center',
-            alignItems: 'center'
+            alignItems: 'center',
+            cursor: 'pointer'
         }
         if (status === 'Completed') {
             statusStyles['backgroundColor'] = 'green'
-        } else if (status === 'Update') {
+        } else if (['Update', 'Updated'].includes(status)) {
             statusStyles['backgroundColor'] = 'blue'
         } else if (status === 'Overdue') {
             statusStyles['backgroundColor'] = 'red'
@@ -68,7 +70,7 @@ export default function WorkList({ worklistData }) {
                     </thead>
                     <tbody>
                         {
-                            data.map((row, index) =>
+                            data?.map((row, index) =>
                             (
                                 <tr key={index}>
                                     <td>{row[0]}</td>
@@ -89,10 +91,25 @@ export default function WorkList({ worklistData }) {
     );
 }
 
-export async function getServerSideProps() {
+export async function getServerSideProps(context) {
+    const { req, res } = context;
+    const token = req?.cookies['token']
+    const payload = await decrypt(token)
+    if (!payload || payload === null || payload === undefined) {
+        res.setHeader('Set-Cookie', [
+            'token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT;',
+        ]);
+        return {
+            redirect: {
+                destination: '/login',
+                permanent: false
+            }
+        }
+    }
+
     try {
         const worklistData = await axios.get(`http://localhost:75/worklist-data`, {
-            params: { ownerName: 'user2' }
+            params: { ownerName: payload.username }
         });
         return {
             props: {
