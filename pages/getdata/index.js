@@ -5,15 +5,33 @@ import { useRouter } from "next/router";
 import styles from "@/styles/AppData.module.css"
 import { decrypt } from "../api/auth/lib";
 
-export default function GetData({ data, userData }) {
+export default function GetData({ payload, metadata_res, workflow_res }) {
+    console.log(workflow_res)
+    console.log(payload)
     const router = useRouter();
     const [appMetadata, setAppMetadata] = useState([]);
     const [appControlsData, setAppControlsData] = useState([]);
+    const [workflowDetails, setWorkflowDetails] = useState([])
 
     useEffect(() => {
-        setAppMetadata(data?.appMetadata);
-        setAppControlsData(data?.appData);
-    }, [data])
+        let temp = {};
+        for (let i = 0; i < workflow_res.length; i++) {
+            if (temp[workflow_res[i][2]])
+                temp[workflow_res[i][2]].push(workflow_res[i][11])
+            else
+                temp[workflow_res[i][2]] = [workflow_res[i][11]]
+        }
+        setWorkflowDetails(temp);
+    }, [workflow_res])
+
+    useEffect(() => {
+        console.log(workflowDetails)
+    }, [workflowDetails])
+
+    useEffect(() => {
+        setAppMetadata(metadata_res?.appMetadata);
+        setAppControlsData(metadata_res?.appData);
+    }, [metadata_res])
 
     const handleDateFormat = (dateString) => {
         const date = new Date(dateString);
@@ -26,7 +44,7 @@ export default function GetData({ data, userData }) {
         return `${formattedDay}-${formattedMonth}-${year}`;
     }
 
-    const getStyles = (status, owner) => {
+    const getStyles = (CNTRL_ID, status, owner) => {
         let statusStyles = {
             color: 'white',
             textAlign: 'center',
@@ -46,7 +64,9 @@ export default function GetData({ data, userData }) {
             statusStyles['backgroundColor'] = 'yellow',
                 statusStyles['color'] = 'black'
         }
-        if (owner !== userData?.username) {
+        if (owner !== payload?.username &&
+            !(workflowDetails[CNTRL_ID] && workflowDetails[CNTRL_ID].includes(owner))
+        ) {
             statusStyles['backgroundColor'] = 'none';
             statusStyles['color'] = 'black';
             statusStyles['border'] = '1px solid black';
@@ -63,14 +83,16 @@ export default function GetData({ data, userData }) {
     }
 
     const handleUpdateStatus = (CNTRL_ID, APP_ID, OWNER) => {
-        if (OWNER !== userData?.username) {
-            alert('You are not authorized to update this control');
-            return;
-        } else {
+        if ((workflowDetails[CNTRL_ID] && workflowDetails[CNTRL_ID].includes(OWNER)) ||
+            OWNER === payload?.username
+        ) {
             router.push({
                 pathname: '/update',
                 query: { CNTRL_ID: CNTRL_ID, APP_ID: APP_ID }
             })
+        } else {
+            alert('You are not authorized to update this control');
+            return;
         }
     }
 
@@ -123,14 +145,13 @@ export default function GetData({ data, userData }) {
                                     <td>{handleDateFormat(controlRow[5])}</td>
                                     <td>{handleDateFormat(controlRow[4])}</td>
                                     <td>
-                                        <div
-                                            onClick={() =>
-                                                handleUpdateStatus(
-                                                    controlRow[2],
-                                                    controlRow[0],
-                                                    controlRow[12]
-                                                )}
-                                            style={getStyles(controlRow[9], controlRow[12])}
+                                        <div onClick={() =>
+                                            handleUpdateStatus(
+                                                controlRow[2],
+                                                controlRow[0],
+                                                controlRow[12]
+                                            )}
+                                            style={getStyles(controlRow[2], controlRow[9], controlRow[12])}
                                         >
                                             {controlRow[9]}
                                         </div>
@@ -147,6 +168,7 @@ export default function GetData({ data, userData }) {
 
 export async function getServerSideProps(context) {
     const params = context.query;
+    params["CNTRL_ID"] = "ALL";
     console.log(params);
 
     const { req, res } = context;
@@ -164,22 +186,29 @@ export async function getServerSideProps(context) {
             }
         }
     }
-
+    let metadata_res = [];
     try {
-        const getAppMetadata = await axios.post('http://localhost:75/api/get-app-controls', params);
-        return {
-            props: {
-                data: getAppMetadata.data,
-                userData: payload
-            }
-        }
-    } catch (error) {
-        console.log(error);
-        return {
-            props: {
-                data: [],
-                userData: payload
-            }
+        const res = await axios.post('http://localhost:75/api/get-app-controls', params);
+        metadata_res = res.data;
+    } catch (err) {
+        console.log(err);
+        metadata_res.data = []
+    }
+
+    let workflow_res = [];
+    try {
+        const res = await axios.post('http://localhost:75/workflow', params);
+        workflow_res = res.data["workflowData"];
+    } catch (err) {
+        console.log(err);
+        workflow_res.data = []
+    }
+
+    return {
+        props: {
+            payload: payload,
+            metadata_res: metadata_res,
+            workflow_res: workflow_res
         }
     }
 }
