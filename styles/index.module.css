@@ -1,0 +1,80 @@
+@import url('https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap');
+
+.bodyContainer {
+    height: 70vh;
+    margin: 10px;
+    font-family: 'Poppins';
+}
+
+.tableContainer {
+    height: 80%;
+    overflow-y: auto;
+    overflow-x: auto;
+    margin: 20px 0 0 0;
+}
+
+.tableContainer table {
+    overflow: scroll;
+    border: 1px solid #777777;
+    border-collapse: collapse;
+    user-select: none;
+    text-align: center;
+    z-index: 1;
+    box-shadow: 1px 1px 8px gray;
+}
+
+.tableContainer table th {
+    border: 1px solid #000;
+    padding: 5px;
+    height: 35px;
+    background-color: #008080;
+    color: #000;
+    font-weight: normal;
+    z-index: 2;
+}
+
+.tableContainer table td {
+    border: 1px solid #000;
+    padding: 5px;
+    height: 35px;
+    background-color: #FFF;
+    text-align: center;
+}
+
+.tableContainer table thead tr:nth-child(1) {
+    position: sticky;
+    top: 0;
+    z-index: 100;
+}
+
+.tableContainer table thead tr:nth-child(2) {
+    position: sticky;
+    top: 35px;
+    z-index: 100;
+}
+
+.tableContainer table thead tr:nth-child(3) {
+    position: sticky;
+    top: 70px;
+    z-index: 100;
+}
+
+.tableContainer table td:nth-child(1),
+.tableContainer table th:nth-child(1) {
+    position: sticky;
+    left: 0;
+}
+
+.tableContainer table td:nth-child(1),
+.tableContainer table th:nth-child(1) {
+    background: #ffebb5;
+    text-align: left;
+}
+
+.tableContainer table td:nth-child(1) div {
+    color: #FFF;
+    background-color: #018989;
+    padding: 2px 0;
+    border-radius: 5px;
+    cursor: pointer;
+}
