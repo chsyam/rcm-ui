@@ -8,18 +8,20 @@ import { decrypt } from "../api/auth/lib";
 export default function UpdateStatus({ payload, metadata_res, workflow_res }) {
     const router = useRouter();
     const params = router.query;
-    const [showData, setShowData] = useState(['Updated', 'InProg']);
+    const showData = ['Updated', 'InProg'];
     const [appMetadata, setAppMetadata] = useState([]);
     const [appData, setAppData] = useState([]);
     const [workflow, setWorkflow] = useState([]);
     const [workflowLevels, setWorkflowLevels] = useState({})
     const [restrictMessages, setRestrictMessages] = useState([]);
     const [pendingUSers, setPendingUsers] = useState([]);
+
     const [upperLevelForCurrent, setUpperLevelForCurrent] = useState({
         username: '',
         level: -1,
         status: ''
     });
+
     const [currentUser, setCurrentUser] = useState({
         username: 'admin',
         level: 1,
@@ -74,11 +76,8 @@ export default function UpdateStatus({ payload, metadata_res, workflow_res }) {
         }
     }, [pendingUSers])
 
-
-
     useEffect(() => {
         let temp = [];
-        // case 1
         for (let i = 0; i < workflow_res.length; i++) {
             if (currentUser.status === workflow_res[i][8] + 1) {
                 setUpperLevelForCurrent({
@@ -97,34 +96,36 @@ export default function UpdateStatus({ payload, metadata_res, workflow_res }) {
     }, [currentUser.level, currentUser, workflow_res])
 
     const [formData, setFormData] = useState({
-        APP_ID: params.APP_ID || "",
-        CNTRL_ID: params.CNTRL_ID || '',
+        APP_ID: params.APP_ID ? params.APP_ID : '',
+        CNTRL_ID: params.CNTRL_ID ? params.CNTRL_ID : "",
         NOTES: showData.includes(appData[9]) ? appData[8] : '',
-        RESULT: showData.includes(appData[9]) ? appData[10] || "none" : 'select',
+        RESULT: showData.includes(appData[9]) ? (appData[10] ? appData[10] : '') : 'select',
         RESULT_REASON: showData.includes(appData[9]) ? appData[11] : '',
-        PROCESS_STATUS: appData[9] || '',
+        PROCESS_STATUS: appData[9] ? appData[9] : '',
         ARTIFACT_URL: showData.includes(appData[9]) ? appData[7] : ''
     })
 
-    useEffect(() => {
-        function handleFormData() {
-            const newFormData = {
-                ...formData,
-                NOTES: showData.includes(appData[9]) ? appData[8] : '',
-                RESULT: showData.includes(appData[9]) ? appData[10] || "none" : 'select',
-                RESULT_REASON: showData.includes(appData[9]) ? appData[11] : '',
-                PROCESS_STATUS: appData[9] || '',
-                ARTIFACT_URL: showData.includes(appData[9]) ? appData[7] : ''
-            };
+    // useEffect(() => {
+    //     function handleFormData() {
+    //         const newFormData = {
+    //             ...formData,
+    //             NOTES: showData.includes(appData[9]) ? appData[8] : '',
+    //             RESULT: showData.includes(appData[9]) ? appData[10] || "none" : 'select',
+    //             RESULT_REASON: showData.includes(appData[9]) ? appData[11] : '',
+    //             PROCESS_STATUS: appData[9] || '',
+    //             ARTIFACT_URL: showData.includes(appData[9]) ? appData[7] : ''
+    //         };
 
-            if (JSON.stringify(formData) !== JSON.stringify(newFormData)) {
-                setFormData(newFormData);
-            }
-        }
-        handleFormData();
-    }, [appData, formData, showData]);
+    //         if (JSON.stringify(formData) !== JSON.stringify(newFormData)) {
+    //             setFormData(newFormData);
+    //         }
+    //     }
+    //     handleFormData();
+    // }, [appData, formData, showData]);
 
     const handleChange = (e) => {
+        console.log(e.target.name, e.target.value)
+        console.log(formData)
         setFormData({
             ...formData,
             [e.target.name]: e.target.value
@@ -204,14 +205,21 @@ export default function UpdateStatus({ payload, metadata_res, workflow_res }) {
                                     <label htmlFor="NOTES">Notes</label><br />
                                     <textarea rows={3}
                                         value={formData.NOTES}
-                                        onChange={(e) => handleChange(e)} type="text" id="NOTES" name="NOTES" required
+                                        onChange={(e) => setFormData({
+                                            ...formData,
+                                            [e.target.name]: e.target.value
+                                        })}
+                                        type="text" id="NOTES" name="NOTES" required
                                     />
                                 </div>
                                 <div className={styles.formElement}>
                                     <label htmlFor="ARTIFACT_URL">Artifact URL</label><br />
                                     <textarea rows={3}
                                         value={formData.ARTIFACT_URL}
-                                        onChange={(e) => handleChange(e)} type="text" id="ARTIFACT_URL" name="ARTIFACT_URL" required
+                                        onChange={(e) => setFormData({
+                                            ...formData,
+                                            [e.target.name]: e.target.value
+                                        })} type="text" id="ARTIFACT_URL" name="ARTIFACT_URL" required
                                     />
                                 </div>
                                 <div className={styles.formElement}>

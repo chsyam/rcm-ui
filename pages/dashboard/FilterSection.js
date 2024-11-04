@@ -1,7 +1,6 @@
 import { useState } from "react";
 import styles from "./../../styles/Filters.module.css"
 import { FaRegUser } from "react-icons/fa";
-import { MdOutlineCalendarMonth } from "react-icons/md";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 
@@ -23,10 +22,10 @@ export default function FilterSection({
     userFilter,
     setUserFilter,
     dateFilter,
-    setDateFilter
+    setDateFilter,
+    startDate,
+    setStartDate
 }) {
-    const [startDate, setStartDate] = useState(new Date());
-    const [showDateFilter, setShowDateFilter] = useState(false);
     const handleRegionFiletr = (regionName) => {
         if (regionFilter.includes(regionName)) {
             setRegionFilter(regionFilter.filter(item => item !== regionName));

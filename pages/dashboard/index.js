@@ -7,7 +7,7 @@ import Navbar from "@/components/Navbar";
 import { decrypt } from "../api/auth/lib";
 
 export default function Home({ data, report, userData }) {
-    console.log(data)
+    const [startDate, setStartDate] = useState(new Date());
     const [isClicked, setIsClicked] = useState([]);
     const [madatoryRows, setMandatoryRows] = useState([]);
     const [appSearch, setAppSearch] = useState("");
@@ -73,11 +73,13 @@ export default function Home({ data, report, userData }) {
                 CNTRL_FREQUENCY: '',
                 KEY_CNTRL: '',
                 RISK_RATING: '',
-                SOX_IN_SCOPE: ''
+                SOX_IN_SCOPE: '',
+                SCHEDULED_DATE: ''
             };
             object.APP_ID = control[0];
             object.REGION_ID = control[1];
             object.CNTRL_ID = control[2];
+            object.SCHEDULED_DATE = control[4];
             object.PROCESS_STATUS = control[9];
             if (keyControlData_temp.hasOwnProperty(control[2])) {
                 object.KEY_CNTRL = keyControlData_temp[control[2]].KEY_CNTRL;
@@ -169,6 +171,8 @@ export default function Home({ data, report, userData }) {
                 setDateFilter={setDateFilter}
                 userData={userData}
                 dashboardData={dashboardData}
+                startDate={startDate}
+                setStartDate={setStartDate}
             />
             <StatusTable
                 columnNames={columnNames}
@@ -195,6 +199,8 @@ export default function Home({ data, report, userData }) {
                 userData={userData}
                 allApplicationData={allApplicationData}
                 dashboardData={dashboardData}
+                startDate={startDate}
+                setStartDate={setStartDate}
             />
         </div>
     );

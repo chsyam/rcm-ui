@@ -24,15 +24,26 @@ export default function StatusTable({
     dateFilter,
     userData,
     allApplicationData,
-    dashboardData
+    dashboardData,
+    startDate,
+    setStartDate
 }) {
     const [consolidatedData, setConsolidatedData] = useState({});
     const [appArray, setAppArray] = useState({});
+    const [currentMonthYear, setCurrentMonthYear] = useState("");
+
+    useEffect(() => {
+        let date = new Date(startDate);
+        setCurrentMonthYear(String(date.getMonth() + 1).padStart(2, '0') + date.getFullYear());
+    }, [startDate, setStartDate])
+
     useEffect(() => {
         let temp = {};
         let tempAppArray = {};
         dashboardData?.forEach((data) => {
-            temp[data.APP_ID + ':' + data.CNTRL_ID] = data;
+            let scheduled_date = new Date(data.SCHEDULED_DATE);
+            let fomattedDate = String(scheduled_date.getMonth() + 1).padStart(2, '0') + scheduled_date.getFullYear();
+            temp[data.APP_ID + ':' + data.CNTRL_ID + ':' + fomattedDate] = data;
             tempAppArray[data.APP_ID] = data;
         });
         setConsolidatedData(temp);
@@ -183,10 +194,6 @@ export default function StatusTable({
         }
     }, [dateFilter, reportData])
 
-    useEffect(() => {
-        console.log(filteredApps, filteredControls)
-    }, [filteredApps, filteredControls])
-
     return (
         <div className={styles.tableContainer}>
             {
@@ -257,7 +264,7 @@ export default function StatusTable({
                                                                         tdIndex === 0 && handleAppClick(cell);
                                                                         !madatoryRows.includes(tdIndex) && handleUpdateStatus(row[0], columnNames[tdIndex])
                                                                     }}
-                                                                        style={tdIndex !== 0 ? tableCell(consolidatedData[`${row[0]}:${columnNames[tdIndex]}`] && consolidatedData[`${row[0]}:${columnNames[tdIndex]}`]['PROCESS_STATUS'], `${row[0]}:${columnNames[tdIndex]}`) : {}}>
+                                                                        style={tdIndex !== 0 ? tableCell(consolidatedData[`${row[0]}:${columnNames[tdIndex]}:${currentMonthYear}`] && consolidatedData[`${row[0]}:${columnNames[tdIndex]}:${currentMonthYear}`]['PROCESS_STATUS'], `${row[0]}:${columnNames[tdIndex]}:${currentMonthYear}`) : {}}>
                                                                         {madatoryRows.includes(tdIndex) && cell}
                                                                     </div>
                                                                 )
