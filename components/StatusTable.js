@@ -26,8 +26,16 @@ export default function StatusTable({
     allApplicationData,
     dashboardData,
     startDate,
-    setStartDate
+    setStartDate,
+    appControlsData,
+    matchingAppCntrlData,
+    appRegions,
+    allAppsDefn,
+    userName
 }) {
+    // console.log("appRegions => ", appRegions)
+    // console.log("matchingAppCntrlData => ", matchingAppCntrlData)
+    // console.log("appControlsData => ", appControlsData)
     const [consolidatedData, setConsolidatedData] = useState({});
     const [appArray, setAppArray] = useState({});
     const [currentMonthYear, setCurrentMonthYear] = useState("");
@@ -40,15 +48,16 @@ export default function StatusTable({
     useEffect(() => {
         let temp = {};
         let tempAppArray = {};
-        dashboardData?.forEach((data) => {
-            let scheduled_date = new Date(data.SCHEDULED_DATE);
+        appControlsData?.forEach((data) => {
+            let scheduled_date = new Date(data.SCHEDULED_DATES);
             let fomattedDate = String(scheduled_date.getMonth() + 1).padStart(2, '0') + scheduled_date.getFullYear();
             temp[data.APP_ID + ':' + data.CNTRL_ID + ':' + fomattedDate] = data;
-            tempAppArray[data.APP_ID] = data;
+            tempAppArray[data.APP_ID + ':' + data.REGION_ID + ':' + data.CNTRL_ID + ':' + fomattedDate] = data;
         });
         setConsolidatedData(temp);
         setAppArray(tempAppArray);
-    }, [dashboardData])
+        // console.log("tempAppArray ===>", tempAppArray);
+    }, [appControlsData])
 
     const [indicesToShow, setIndicesToShow] = useState([]);
     const router = useRouter();
@@ -194,6 +203,10 @@ export default function StatusTable({
         }
     }, [dateFilter, reportData])
 
+    const validateCell = (row, tdIndex) => {
+        return (matchingAppCntrlData.hasOwnProperty(row) && matchingAppCntrlData[row][row + ':' + columnNames[tdIndex]]) ? matchingAppCntrlData[row][row + ':' + columnNames[tdIndex]]['PROCESS_STATUS'] : false
+    }
+
     return (
         <div className={styles.tableContainer}>
             {
@@ -240,32 +253,40 @@ export default function StatusTable({
                 </thead>
                 <tbody>
                     {
-                        tableBody?.map((row, index) =>
-                            row &&
-                            (regionFilter.length === 0 || regionFilter.includes(row[row.length - 2])) && (!soxInScope || row[row.length - 1] === 'Y') &&
-                            (isClicked.length === 0 || handleStatusCheck(row)) &&
-                            (appSearch == "" || row[0].toLowerCase().includes(appSearch.toLowerCase())) &&
-                            (allowedApps.length === 0 || row[0] in allowedApps) && (
-                                !dateFilter || (filteredApps.has(row[0]))
-                            ) && (appArray.hasOwnProperty(row[0])) && (
+                        Object.keys(matchingAppCntrlData)?.map((row, index) =>
+                            row
+                            && (regionFilter.length === 0 || regionFilter.includes(appRegions[row]))
+                            && (!soxInScope || allAppsDefn[row]?.SOX_IN_SCOPE === 'Y')
+                            // && (isClicked.length === 0 || handleStatusCheck(row))
+                            && (appSearch == "" || row.toLowerCase().includes(appSearch.toLowerCase()))
+                            // && (allowedApps.length === 0 || row.APP_ID in allowedApps)
+                            && (!dateFilter || (filteredApps.has(row)))
+                            && (
                                 <tr key={index}>
                                     {
-                                        row.map((cell, tdIndex) =>
-                                            indicesToShow.includes(tdIndex) && ![frequencyRow?.length - 1, frequencyRow?.length - 2].includes(tdIndex) && (allowedControlIndices.length === 0 || allowedControlIndices.includes(tdIndex)) && (
-                                                tdIndex === 0 || (!dateFilter || filteredControls.has(columnNames[tdIndex]))
-                                            ) &&
+                                        Array.from({ length: columnNames.length }, (_, tdIndex) => tdIndex).map((tdIndex) =>
+                                            indicesToShow.includes(tdIndex)
+                                            && ![frequencyRow?.length - 1, frequencyRow?.length - 2].includes(tdIndex)
+                                            // && (allowedControlIndices.length === 0 || allowedControlIndices.includes(tdIndex))
+                                            // && (tdIndex === 0 || (!dateFilter || filteredControls.has(columnNames[tdIndex])))
+                                            &&
                                             (
                                                 <td key={tdIndex}>
                                                     {
                                                         <div style={tdStyles}>
                                                             {
-                                                                cell && cell !== 'NAN' && (
+                                                                // cell && cell !== 'NAN'
+                                                                // matchingAppCntrlData.hasOwnProperty(row.APP_ID + ':' + columnNames[tdIndex]) &&
+                                                                (tdIndex === 0 || appArray.hasOwnProperty(row + ':' + appRegions[row] + ':' + columnNames[tdIndex] + ':' + currentMonthYear)) &&
+                                                                (
                                                                     <div onClick={() => {
-                                                                        tdIndex === 0 && handleAppClick(cell);
-                                                                        !madatoryRows.includes(tdIndex) && handleUpdateStatus(row[0], columnNames[tdIndex])
+                                                                        tdIndex === 0 && handleAppClick(row);
+                                                                        !madatoryRows.includes(tdIndex) && handleUpdateStatus(row, columnNames[tdIndex])
                                                                     }}
-                                                                        style={tdIndex !== 0 ? tableCell(consolidatedData[`${row[0]}:${columnNames[tdIndex]}:${currentMonthYear}`] && consolidatedData[`${row[0]}:${columnNames[tdIndex]}:${currentMonthYear}`]['PROCESS_STATUS'], `${row[0]}:${columnNames[tdIndex]}:${currentMonthYear}`) : {}}>
-                                                                        {madatoryRows.includes(tdIndex) && cell}
+                                                                        style={tdIndex !== 0 ? tableCell(validateCell(row, tdIndex) && validateCell(row, tdIndex), `${row}:${columnNames[tdIndex]}:${currentMonthYear}`) : {}}>
+                                                                        <div style={{ fontSize: '10px' }}>
+                                                                        </div>
+                                                                        {madatoryRows.includes(tdIndex) && row}
                                                                     </div>
                                                                 )
                                                             }

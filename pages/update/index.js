@@ -203,7 +203,7 @@ export default function UpdateStatus({ payload, metadata_res, workflow_res }) {
                                 </div>
                                 <div className={styles.formElement}>
                                     <label htmlFor="NOTES">Notes</label><br />
-                                    <textarea rows={3}
+                                    <textarea rows={1}
                                         value={formData.NOTES}
                                         onChange={(e) => setFormData({
                                             ...formData,
@@ -214,7 +214,7 @@ export default function UpdateStatus({ payload, metadata_res, workflow_res }) {
                                 </div>
                                 <div className={styles.formElement}>
                                     <label htmlFor="ARTIFACT_URL">Artifact URL</label><br />
-                                    <textarea rows={3}
+                                    <textarea rows={1}
                                         value={formData.ARTIFACT_URL}
                                         onChange={(e) => setFormData({
                                             ...formData,
@@ -224,7 +224,7 @@ export default function UpdateStatus({ payload, metadata_res, workflow_res }) {
                                 </div>
                                 <div className={styles.formElement}>
                                     <label htmlFor="RESULT_REASON">Result Reason</label><br />
-                                    <textarea rows={3}
+                                    <textarea rows={1}
                                         value={formData.RESULT_REASON}
                                         onChange={(e) => handleChange(e)} type="text" id="RESULT_REASON" name="RESULT_REASON" required />
                                 </div>

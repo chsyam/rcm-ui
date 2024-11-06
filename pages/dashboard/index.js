@@ -7,6 +7,8 @@ import Navbar from "@/components/Navbar";
 import { decrypt } from "../api/auth/lib";
 
 export default function Home({ data, report, userData }) {
+    console.log("userData", userData)
+    const [userName, setUserName] = useState(userData?.username);
     const [startDate, setStartDate] = useState(new Date());
     const [isClicked, setIsClicked] = useState([]);
     const [madatoryRows, setMandatoryRows] = useState([]);
@@ -33,8 +35,12 @@ export default function Home({ data, report, userData }) {
     const [keyControl, setKeyControl] = useState(false);
 
     const [allApplicationData, setAllApplicationData] = useState([]);
-
     const [dashboardData, setDashboardData] = useState([]);
+    const [appControlsData, setAppControlsData] = useState([]);
+    const [matchingAppCntrlData, setMatchingAppCntrlData] = useState({});
+    const [appRegions, setAppRegions] = useState({})
+    const [allAppsDefn, setAllAppsDefn] = useState({});
+
     useEffect(() => {
         let keyControlData_temp = {};
         data?.all_key_controls?.forEach((control) => {
@@ -61,9 +67,9 @@ export default function Home({ data, report, userData }) {
                 SOX_IN_SCOPE: SOX_IN_SCOPE,
             };
         });
+        setAllAppsDefn(soxInScope_temp);
 
         let temp = [];
-
         data?.all_controls?.forEach((control) => {
             let object = {
                 APP_ID: '',
@@ -95,6 +101,80 @@ export default function Home({ data, report, userData }) {
     }, [data])
 
     useEffect(() => {
+        let app_cntrl_id_map = {};
+        let keyControlData_temp = {};
+        data?.all_key_controls?.forEach((control) => {
+            let CNTRL_ID = control[0]
+            let KEY_CNTRL = control[7]
+            let RISK_RATING = control[8]
+            let CNTRL_FREQUENCY = control[2]
+            keyControlData_temp[CNTRL_ID] = {
+                CNTRL_ID: CNTRL_ID,
+                RISK_RATING: RISK_RATING,
+                CNTRL_FREQUENCY: CNTRL_FREQUENCY,
+                KEY_CNTRL: KEY_CNTRL == 'Y' ? 'Y' : 'N',
+            };
+        });
+
+        let soxInScope_temp = {}
+        data?.all_apps_metadata?.forEach((app) => {
+            let APP_ID = app[0]
+            let REGION_ID = app[1]
+            let SOX_IN_SCOPE = app[5]
+            soxInScope_temp[APP_ID] = {
+                APP_ID: APP_ID,
+                REGION_ID: REGION_ID,
+                SOX_IN_SCOPE: SOX_IN_SCOPE,
+            };
+        });
+        let tempMap = {};
+        let temp = [];
+        let tempAppRecords = {};
+        data?.all_controls?.forEach((record, index) => {
+            let tempObject = {};
+            tempObject['APP_ID'] = record[0];
+            tempObject['REGION_ID'] = record[1];
+            tempObject['CNTRL_ID'] = record[2];
+            tempObject['RECUR_ID'] = record[3];
+            tempObject['SCHEDULED_DATES'] = record[4];
+            tempObject['LAST_UPDATED_DTTM'] = record[5];
+            tempObject['LAST_UPDATED_USERID'] = record[6];
+            tempObject['ARTIFACT_URL'] = record[7];
+            tempObject['NOTES'] = record[8];
+            tempObject['PROCESS_STATUS'] = record[9];
+            tempObject['RESULT'] = record[10];
+            tempObject['RESULT_REASON'] = record[11];
+            tempObject['OWNER'] = record[12];
+            tempObject['APPROVAL_WORKFLOW_IDS'] = record[13];
+            tempObject['is_updated'] = record[14];
+            tempObject['LOG_UPDATED_TIME'] = record[15];
+            if (keyControlData_temp.hasOwnProperty(record[2])) {
+                tempObject['KEY_CNTRL'] = keyControlData_temp[record[2]].KEY_CNTRL;
+                tempObject['CNTRL_FREQUENCY'] = keyControlData_temp[record[2]].CNTRL_FREQUENCY;
+                tempObject['RISK_RATING'] = keyControlData_temp[record[2]].RISK_RATING;
+            }
+            if (soxInScope_temp.hasOwnProperty(record[0])) {
+                tempObject.SOX_IN_SCOPE = soxInScope_temp[record[0]].SOX_IN_SCOPE;
+            }
+            temp.push(tempObject);
+            app_cntrl_id_map[record[0] + ':' + record[2]] = tempObject;
+            if (tempMap.hasOwnProperty(record[0])) {
+                tempMap[record[0]][record[0] + ':' + record[2]] = tempObject
+            } else {
+                tempMap[record[0]] = {}
+                tempMap[record[0]][record[0] + ':' + record[2]] = tempObject
+            }
+            tempAppRecords[record[0]] = record[1]
+        })
+        setAppRegions(tempAppRecords);
+        // console.log("temp ====>", temp);
+        // console.log("app_cntrl_id_map ====>", app_cntrl_id_map);
+        // console.log("tempMap ====>", tempMap);
+        setMatchingAppCntrlData(tempMap);
+        setAppControlsData(temp);
+    }, [data])
+
+    useEffect(() => {
         setAllApplicationData(data?.all_applications);
     }, [data])
 
@@ -106,7 +186,7 @@ export default function Home({ data, report, userData }) {
                 let APP_ID = control[0]
                 let CNTRL_ID = control[2]
                 if (temp.hasOwnProperty(username)) {
-                    temp[username][APP_ID].push(CNTRL_ID)
+                    // temp[username][APP_ID].push(CNTRL_ID)
                 } else {
                     temp[username] = { [APP_ID]: [CNTRL_ID] }
                 };
@@ -201,6 +281,10 @@ export default function Home({ data, report, userData }) {
                 dashboardData={dashboardData}
                 startDate={startDate}
                 setStartDate={setStartDate}
+                appControlsData={appControlsData}
+                matchingAppCntrlData={matchingAppCntrlData}
+                appRegions={appRegions}
+                allAppsDefn={allAppsDefn}
             />
         </div>
     );
@@ -221,7 +305,6 @@ export async function getServerSideProps(context) {
             }
         }
     }
-    console.log("payload =>", payload);
 
     let dashboard = {};
     try {
