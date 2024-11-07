@@ -1,8 +1,6 @@
 import { useState } from "react";
 import styles from "./Login.module.css"
-import Link from "next/link";
 import { useRouter } from "next/router";
-import { decrypt } from "../api/auth/lib";
 import Layout from "@/components/Layout";
 
 export default function Login({ payload }) {

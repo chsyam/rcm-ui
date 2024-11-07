@@ -1,33 +1,180 @@
-.formSection { display: flex; justify-content: center; align-items: center; flex-direction: column; }
+.updateContainer {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+    margin: 20px auto;
+    width: 100%;
+    font-family: 'Poppins';
+    flex-wrap: wrap;
+}
 
-.form { font-family: 'Poppins',sans-serif; }
+.formContainer {
+    background-color: rgb(222, 230, 227);
+    padding: 20px;
+    border-radius: 5px;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    width: 60%;
+}
 
-.form .heading { text-align: center; margin: 20px 0; }
+.formContainer .formGroup {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 20px;
+    flex-grow: 1;
+}
 
-.form .heading .title { font-size: 1.75rem; font-weight: 500; }
+.formGroup .formElement {
+    flex-grow: 1;
+}
 
-.form .heading .sectionInfo { font-size: 1rem; color: #707070; }
+.formElement input,
+.formElement textarea,
+.formElement select {
+    width: 100%;
+    padding: 10px 5px 10px 5px;
+    font-size: 16px;
+    border-radius: 5px;
+    outline: none;
+    border: 1px solid #3f3f3f;
+    font-family: 'Poppins';
+    resize: none;
+}
 
-.flexBlock { display: flex; justify-content: center; align-items: center; gap: 30px; }
+.formElement label {
+    font-size: 18px;
+    font-family: 'Poppins';
+    color: gray;
+}
 
-.formElement { margin: 10px 0; }
+.submitButton {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
+    margin: 10px 0;
+}
 
-.formElement label { font-weight: 500; font-size: 1.1rem; }
+.submitButton input {
+    width: 100%;
+    padding: 10px;
+    border-radius: 5px;
+    border: 1px solid green;
+    background-color: green;
+    color: #FFF;
+    font-size: 16px;
+    font-family: 'Poppins';
+    width: 80%;
+    cursor: pointer;
+}
 
-.formElement input { padding: 10px 10px; border-radius: 5px; outline: none; border: 2px solid rgb(171, 170, 170); width: 180px; font-family: 'Poppins',sans-serif; font-size: 0.75rem; }
+.fieldError {
+    color: #ff4838;
+    margin: 5px 0 20px 0;
+    font-size: 1.1rem;
+    text-align: center;
+    font-weight: 600;
+    white-space: pre-line;
+}
 
-.formElement select, .formElement textarea { padding: 10px 10px; border-radius: 5px; outline: none; width: 420px; border: 2px solid rgb(171, 170, 170); font-family: 'Poppins',sans-serif; font-size: 0.75rem; resize: none; }
+.fieldSuccess {
+    color: #28bf06;
+    margin: 5px 0 20px 0;
+    font-size: 1.1rem;
+    text-align: center;
+    font-weight: 600;
+    white-space: pre-line;
+}
 
-.formElement select { padding: 10px 10px; border-radius: 5px; outline: none; width: 440px; border: 2px solid rgb(171, 170, 170); font-family: 'Poppins',sans-serif; font-size: 0.75rem; resize: none; }
+.workflowContainer {
+    display: flex;
+    justify-content: center;
+    flex-direction: column;
+    width: 90%;
+    align-items: center;
+    margin: 40px 0;
+    font-family: 'Poppins';
+}
 
-.fieldError { color: #ff4838; margin: 5px 0 20px 0; font-size: 1.1rem; text-align: center; font-weight: 600; white-space: pre-line; }
+.workflowCards {
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 40px;
+    width: 100%;
+    margin: 20px;
+}
 
-.fieldSuccess { color: #28bf06; margin: 5px 0 20px 0; font-size: 1.1rem; text-align: center; font-weight: 600; white-space: pre-line; }
+.workflowTitle {
+    font-size: 24px;
+    font-weight: 500;
+}
 
-.submitButton { text-align: center; margin: 30px 0 20px 0; }
+.cardItem {
+    padding: 30px 40px;
+    border-radius: 5px;
+    display: flex;
+    justify-content: space-around;
+    gap: 20px;
+    box-shadow: 1px 1px 8px #454545;
+    text-align: left;
+}
 
-.submitButton button { background: #28bf06; border: none; color: #fff; padding: 10px 20px; font-size: 1rem; border-radius: 5px; cursor: pointer; }
+.cardItem .level {
+    font-size: 22px;
+    font-weight: 500;
+}
 
-.workflowContainer { display: flex; justify-content: left; align-items: center; gap: 20px; }
+.statusIcon {
+    border-radius: 100%;
+    opacity: 0.7;
+    padding: 8px 10px;
+}
 
-.workflowContainer .workflowItem { border: 1px solid gray; margin: 20px 0; padding: 10px; border-radius: 10px; font-size: 20px; box-shadow: 1px 1px 8px gray; }
+.approver,
+.approvedOn {
+    color: rgb(56, 56, 56);
+    margin: 5px 0;
+    padding: 0;
+}
+
+.approver span,
+.approvedOn span {
+    margin: 0 10px;
+    font-size: 16px;
+    color: #000;
+    font-weight: 600;
+}
+
+.summaryContainer {
+    box-shadow: 1px 1px 8px #454545;
+    border-radius: 5px;
+    padding: 20px;
+    font-family: 'Poppins';
+}
+
+.sectionTitle {
+    font-size: 24px;
+    font-weight: 500;
+    margin: 20px 10px;
+}
+
+.summaryItems {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 40px;
+    padding: 10px;
+}
+
+.summaryItems div {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 18px;
+}

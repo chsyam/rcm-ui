@@ -1,5 +1,4 @@
 import axios from "axios";
-import bcrypt from "bcryptjs"
 import jwt from 'jsonwebtoken'
 
 export default async function loginHandler(req, res) {
