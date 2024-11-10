@@ -5,6 +5,7 @@ import FilterSection from "./FilterSection";
 import styles from "@/styles/index.module.css"
 import Navbar from "@/components/Navbar";
 import { decrypt } from "../api/auth/lib";
+import TitleBar from "@/components/TitleBar";
 
 export default function Home({ data, report, userData }) {
     console.log("userData", userData)
@@ -230,6 +231,12 @@ export default function Home({ data, report, userData }) {
 
     return (
         <div className={styles.bodyContainer}>
+            <TitleBar
+                startDate={startDate}
+                setStartDate={setStartDate}
+                appSearch={appSearch}
+                setAppSearch={setAppSearch}
+            />
             <FilterSection
                 setRegionFilter={setRegionFilter}
                 regionFilter={regionFilter}
@@ -243,8 +250,6 @@ export default function Home({ data, report, userData }) {
                 keyControl={keyControl}
                 isClicked={isClicked}
                 setIsClicked={setIsClicked}
-                appSearch={appSearch}
-                setAppSearch={setAppSearch}
                 userFilter={userFilter}
                 setUserFilter={setUserFilter}
                 dateFilter={dateFilter}

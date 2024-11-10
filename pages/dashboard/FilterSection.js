@@ -102,10 +102,10 @@ export default function FilterSection({
                 >Key Control</div>
             </div>
             <div className={styles.filterButtons}>
-                <div onClick={() => setUserFilter(!userFilter)}>
+                {/* <div onClick={() => setUserFilter(!userFilter)}>
                     <FaRegUser /><br />
                 </div>
-                {userFilter.toString()}
+                {userFilter.toString()} */}
                 <div className={styles.filter}
                     style={isClicked?.includes("Overdue") ? { backgroundColor: '#FFF', border: '2px solid red', color: 'red' } : { backgroundColor: "red" }}
                     onClick={() => handleAppStatus("Overdue")}
@@ -122,12 +122,6 @@ export default function FilterSection({
                     style={isClicked?.includes("Schedule") ? { backgroundColor: '#FFF', border: '2px solid blue', color: 'blue' } : { backgroundColor: "blue" }}
                     onClick={() => handleAppStatus("Schedule")}
                 >Scheduled</div>
-            </div>
-            <div>
-                <input type="text" name="appSearch" value={appSearch} onChange={(e) => { setAppSearch(e.target.value) }} placeholder="Application Search" className={styles.search} />
-            </div>
-            <div style={{ zIndex: 1000 }}>
-                <DatePicker className={styles.calendar} dateFormat="MMMM, yyyy" selected={startDate} onChange={(date) => setStartDate(date)} showMonthYearPicker />
             </div>
         </div>
     )

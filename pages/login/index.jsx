@@ -9,9 +9,10 @@ export default function Login({ payload }) {
     const [loginError, setLoginError] = useState("");
     const [loginSuccess, setLoginSuccess] = useState("");
     const [formData, setFormData] = useState({
-        email: "user1@tcs.com",
-        password: "user1@123"
+        email: "",
+        password: ""
     })
+
     const handleChange = (e) => {
         setFormData({
             ...formData,
@@ -40,21 +41,20 @@ export default function Login({ payload }) {
                 setLoginSuccess("Login successfull");
                 const { token } = await response.json()
                 document.cookie = `token=${token}; path=/`
-                setTimeout(() => {
-                    router.push('/dashboard')
-                }, 100);
+                router.push('/dashboard')
             } else {
-                setLoginError("Something went wrong while login. Please try again later");
+                setLoginError("Invalid Credentials..!");
             }
         } catch (error) {
-            setLoginError("Something went wrong while login. Please try again later");
+            setLoginError("Something wrong. Please try later");
             console.log(error);
         }
     }
 
     return (
-        <Layout payload={payload}> 
+        <Layout payload={payload}>
             <div className={styles.formSection}>
+                <div></div>
                 <form className={styles.form} onSubmit={handleSubmit}>
                     <div className={styles.heading}>
                         <div className={styles.title}>Login to your account</div>

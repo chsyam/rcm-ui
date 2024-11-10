@@ -2,9 +2,9 @@
 
 .filterSection {
     display: flex;
-    justify-content: left;
+    justify-content: space-between;
     align-items: center;
-    margin: 20px 20px 0 0;
+    margin: 30px 0 40px 0;
     flex-wrap: wrap;
     gap: 20px;
     font-family: 'Poppins';
@@ -12,7 +12,9 @@
 
 .filterButtons {
     display: flex;
-    gap: 20px;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 10px;
 }
 
 .filterButtons .filter {
@@ -22,29 +24,4 @@
     cursor: pointer;
     font-weight: 500;
     font-size: 16px;
-}
-
-.search {
-    padding: 5px 10px;
-    border: 2px solid black;
-    outline: none;
-    border-radius: 5px;
-    font-family: 'Poppins';
-    font-size: 16px;
-}
-
-.calendar {
-    padding: 5px 10px;
-    font-family: "Poppins";
-    font-size: 16px;
-    border-radius: 5px;
-    width: min-content;
-}
-
-.dateFilter {
-    font-size: 1.5rem;
-    cursor: pointer;
-    padding: 2px 5px;
-    border-radius: 10px;
-    user-select: none;
 }

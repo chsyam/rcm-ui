@@ -9,7 +9,7 @@ const Layout = ({ children }) => {
             {router.pathname !== "/login" &&
                 <Navbar />
             }
-            <div style={{ paddingTop: router.pathname !== "/login" ? '80px' : '40px' }}>
+            <div style={{ paddingTop: router.pathname !== "/login" ? '150px' : '40px' }}>
                 <main>{children}</main>
             </div>
         </>

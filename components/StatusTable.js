@@ -33,9 +33,6 @@ export default function StatusTable({
     allAppsDefn,
     userName
 }) {
-    // console.log("appRegions => ", appRegions)
-    // console.log("matchingAppCntrlData => ", matchingAppCntrlData)
-    // console.log("appControlsData => ", appControlsData)
     const [consolidatedData, setConsolidatedData] = useState({});
     const [appArray, setAppArray] = useState({});
     const [currentMonthYear, setCurrentMonthYear] = useState("");
@@ -56,7 +53,6 @@ export default function StatusTable({
         });
         setConsolidatedData(temp);
         setAppArray(tempAppArray);
-        // console.log("tempAppArray ===>", tempAppArray);
     }, [appControlsData])
 
     const [indicesToShow, setIndicesToShow] = useState([]);
