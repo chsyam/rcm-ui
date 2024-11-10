@@ -168,9 +168,6 @@ export default function Home({ data, report, userData }) {
             tempAppRecords[record[0]] = record[1]
         })
         setAppRegions(tempAppRecords);
-        // console.log("temp ====>", temp);
-        // console.log("app_cntrl_id_map ====>", app_cntrl_id_map);
-        // console.log("tempMap ====>", tempMap);
         setMatchingAppCntrlData(tempMap);
         setAppControlsData(temp);
     }, [data])
