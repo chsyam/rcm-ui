@@ -71,7 +71,7 @@ export default function UpdateStatus({ payload, metadata_res, workflow_res }) {
 
     useEffect(() => {
         let tempMetadata = {};
-        let showData = ['updated', 'inprog'];
+        let showData = ['NA', 'Red', 'Green', 'Yellow'];
         tempMetadata["APP_ID"] = metadata_res?.appData[0];
         tempMetadata["CNTRL_ID"] = metadata_res?.appData[2];
         tempMetadata["REGION_ID"] = metadata_res?.appData[1];
@@ -84,11 +84,11 @@ export default function UpdateStatus({ payload, metadata_res, workflow_res }) {
         setFormData({
             APP_ID: tempMetadata.APP_ID,
             CNTRL_ID: tempMetadata.CNTRL_ID,
-            NOTES: showData.includes(tempMetadata["PROCESS_STATUS"]) ? tempMetadata["NOTES"] : '',
-            RESULT: showData.includes(tempMetadata["PROCESS_STATUS"]) ? (tempMetadata["RESULT"] ? tempMetadata["RESULT"] : '') : 'NA',
-            RESULT_REASON: showData.includes(tempMetadata["PROCESS_STATUS"]) ? tempMetadata["RESULT_REASON"] : '',
+            NOTES: showData.includes(tempMetadata["RESULT"]) ? tempMetadata["NOTES"] : '',
+            RESULT: showData.includes(tempMetadata["RESULT"]) ? (tempMetadata["RESULT"] ? tempMetadata["RESULT"] : '') : 'NA',
+            RESULT_REASON: showData.includes(tempMetadata["RESULT"]) ? tempMetadata["RESULT_REASON"] : '',
             PROCESS_STATUS: tempMetadata["PROCESS_STATUS"] ? tempMetadata["PROCESS_STATUS"] : '',
-            ARTIFACT_URL: showData.includes(tempMetadata["PROCESS_STATUS"]) ? tempMetadata["ARTIFACT_URL"] : '',
+            ARTIFACT_URL: showData.includes(tempMetadata["RESULT"]) ? tempMetadata["ARTIFACT_URL"] : '',
             OWNER: payload.username ? payload.username : ''
         })
     }, [metadata_res, payload])
@@ -315,72 +315,80 @@ export default function UpdateStatus({ payload, metadata_res, workflow_res }) {
                     </form>
                 )
             }
-            <div className={styles.workflowContainer}>
-                <div className={styles.workflowTitle}>
-                    Track Approval workflow
-                </div>
-                <div className={styles.workflowCards}>
-                    {
-                        Object.keys(workflowLevelsData).map((key, index) => {
-                            return (
-                                <div className={styles.cardItem} key={index}
-                                    style={cardItemStyles(workflowLevelsData[key].RESULT)}
-                                >
-                                    <div>
-                                        <div style={statusIconStyles(workflowLevelsData[key].RESULT)}>
-                                            {
-                                                workflowLevelsData[key].RESULT === 'Green' ?
-                                                    <CircleCheckBig /> :
-                                                    workflowLevelsData[key].RESULT === 'Red' ?
-                                                        <OctagonX /> : <Clock4 />
-                                            }
-                                        </div>
-                                    </div>
-                                    <div>
-                                        <div className={styles.level}>
-                                            Level {key}
-                                        </div>
-                                        <div className={styles.status}
-                                            style={processStyles(workflowLevelsData[key].RESULT)}>
-                                            {workflowLevelsData[key].RESULT === 'Green' ? 'Approved' : workflowLevelsData[key].RESULT === 'Red' ? 'Rejected' : 'Pending'}
-                                        </div>
-                                        <div className={styles.approver}>
-                                            Approver:
-                                            <span>
-                                                {workflowLevelsData[key].APPROVAL_WORKFLOW_USER}
-                                            </span>
-                                        </div>
-                                        {
-                                            !(['NA', 'Pending'].includes(workflowLevelsData[key].RESULT)) &&
-                                            <div className={styles.approvedOn}>
-                                                Approved On:
-                                                <span>
-                                                    {getFormatedDate(workflowLevelsData[key].LAST_UPDATED_DTTM)}
-                                                </span>
+            {
+                summary.levelsCount > 0 && (
+                    <div className={styles.workflowContainer}>
+                        <div className={styles.workflowTitle}>
+                            Track Approval workflow
+                        </div>
+                        <div className={styles.workflowCards}>
+                            {
+                                Object.keys(workflowLevelsData).map((key, index) => {
+                                    return (
+                                        <div className={styles.cardItem} key={index}
+                                            style={cardItemStyles(workflowLevelsData[key].RESULT)}
+                                        >
+                                            <div>
+                                                <div style={statusIconStyles(workflowLevelsData[key].RESULT)}>
+                                                    {
+                                                        workflowLevelsData[key].RESULT === 'Green' ?
+                                                            <CircleCheckBig /> :
+                                                            workflowLevelsData[key].RESULT === 'Red' ?
+                                                                <OctagonX /> : <Clock4 />
+                                                    }
+                                                </div>
                                             </div>
-                                        }
-                                    </div>
-                                </div>
-                            )
-                        })
-                    }
-                </div>
-            </div>
-            <div className={styles.summaryContainer}>
-                <div className={styles.sectionTitle}>Workflow Summary</div>
-                <div className={styles.summaryItems}>
-                    <div>
-                        <UserCheck /> {`${summary.approvedCount}/${summary.levelsCount} Approved`}
+                                            <div>
+                                                <div className={styles.level}>
+                                                    Level {key}
+                                                </div>
+                                                <div className={styles.status}
+                                                    style={processStyles(workflowLevelsData[key].RESULT)}>
+                                                    {workflowLevelsData[key].RESULT === 'Green' ? 'Approved' : workflowLevelsData[key].RESULT === 'Red' ? 'Rejected' : 'Pending'}
+                                                </div>
+                                                <div className={styles.approver}>
+                                                    Approver:
+                                                    <span>
+                                                        {workflowLevelsData[key].APPROVAL_WORKFLOW_USER}
+                                                    </span>
+                                                </div>
+                                                {
+                                                    !(['NA', 'Pending'].includes(workflowLevelsData[key].RESULT)) &&
+                                                    <div className={styles.approvedOn}>
+                                                        Approved On:
+                                                        <span>
+                                                            {getFormatedDate(workflowLevelsData[key].LAST_UPDATED_DTTM)}
+                                                        </span>
+                                                    </div>
+                                                }
+                                            </div>
+                                        </div>
+                                    )
+                                })
+                            }
+                        </div>
                     </div>
-                    <div>
-                        <Users /> {`${summary.count_approvers} Approvers`}
+                )
+            }
+            {
+                summary.levelsCount > 0 && (
+                    <div className={styles.summaryContainer}>
+                        <div className={styles.sectionTitle}>Workflow Summary</div>
+                        <div className={styles.summaryItems}>
+                            <div>
+                                <UserCheck /> {`${summary.approvedCount}/${summary.levelsCount} Approved`}
+                            </div>
+                            <div>
+                                <Users /> {`${summary.count_approvers} Approvers`}
+                            </div>
+                            <div>
+                                <Building2 />{`${summary.levelsCount} Levels`}
+                            </div>
+                        </div>
                     </div>
-                    <div>
-                        <Building2 />{`${summary.levelsCount} Levels`}
-                    </div>
-                </div>
-            </div>
-        </div >
+                )
+            }
+        </div>
     )
 }
 

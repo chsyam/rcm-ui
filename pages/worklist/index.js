@@ -7,6 +7,7 @@ import { decrypt } from "../api/auth/lib";
 
 export default function WorkList({ worklistData }) {
     const [data, setData] = useState([]);
+    const [countRecords, setCountRecords] = useState(0);
 
     const router = useRouter();
     useEffect(() => {
@@ -54,37 +55,58 @@ export default function WorkList({ worklistData }) {
         })
     }
 
+    useEffect(() => {
+        let count = 0;
+        data?.map((row, index) => {
+            if (row[9] !== 'Updated')
+                count++;
+        })
+        setCountRecords(count);
+    }, [data])
+
     return (
         <div>
             <div className={styles.appDataSection}>
-                <table border={1}>
-                    <thead>
-                        <tr>
-                            <th>Application ID</th>
-                            <th>Control Id</th>
-                            <th>Last Update</th>
-                            <th>Next Schedule</th>
-                            <th>Status</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {
-                            data?.map((row, index) =>
-                            (
-                                <tr key={index}>
-                                    <td>{row[0]}</td>
-                                    <td>{row[2]}</td>
-                                    <td>{handleDateFormat(row[5])}</td>
-                                    <td>{handleDateFormat(row[4])}</td>
-                                    <td>
-                                        <div onClick={() => handleUpdateStatus(row[2], row[0], row[8], row[9], row[10], row[11])} style={getStyles(row[9])}>{row[9]}
-                                        </div>
-                                    </td>
+                {
+                    countRecords !== 0 ? (
+                        <table border={1}>
+                            <thead>
+                                <tr>
+                                    <th>Application ID</th>
+                                    <th>Control Id</th>
+                                    <th>Last Update</th>
+                                    <th>Next Schedule</th>
+                                    <th>Status</th>
                                 </tr>
-                            ))
-                        }
-                    </tbody>
-                </table>
+                            </thead>
+                            <tbody>
+                                {
+                                    data?.map((row, index) =>
+                                    (
+                                        row[9] !== 'Updated' && (
+                                            <tr key={index}>
+                                                <td>{row[0]}</td>
+                                                <td>{row[2]}</td>
+                                                <td>{handleDateFormat(row[5])}</td>
+                                                <td>{handleDateFormat(row[4])}</td>
+                                                <td>
+                                                    <div onClick={() => handleUpdateStatus(row[2], row[0], row[8], row[9], row[10], row[11])} style={getStyles(row[9])}
+                                                    >
+                                                        {row[9]}
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                        )
+                                    ))
+                                }
+                            </tbody>
+                        </table>
+                    ) : (
+                        <div>
+                            No worklist records to show
+                        </div>
+                    )
+                }
             </div>
         </div>
     );

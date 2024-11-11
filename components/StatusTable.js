@@ -122,6 +122,25 @@ export default function StatusTable({
         }
     }, [allowedApps, allowedControls, columnNames, userFilter])
 
+    const [validIndices, setValidIndices] = useState([]);
+
+    useEffect(() => {
+        let tempCntrls = [];
+        appControlsData.map((app) => {
+            if (app["OWNER"] === username) {
+                tempCntrls.push(app['CNTRL_ID']);
+            }
+        })
+
+        let tempIndices = [];
+        columnNames.map((column, index) => {
+            if (tempCntrls.includes(column)) {
+                tempIndices.push(index);
+            }
+        })
+        setValidIndices([0, ...tempIndices]);
+    }, [appControlsData, columnNames, username])
+
     function tableCell(cellValue, status) {
         return (
             {
@@ -205,33 +224,26 @@ export default function StatusTable({
 
     return (
         <div className={styles.tableContainer}>
-            {
-                allowedControlIndices.map((control, index) =>
-                    <span key={index}>{index}</span>
-                )
-            }
             <table>
                 <thead>
                     <tr>
                         {
                             columnNames?.map((colName, index) =>
-                                indicesToShow.includes(index) && ![columnNames?.length - 1, columnNames?.length - 2].includes(index) &&
-                                (allowedControlIndices.length === 0 || allowedControlIndices.includes(index)) && (
-                                    index === 0 || (!dateFilter || filteredControls.has(colName))
-                                ) && (
-                                    <th key={index}>
-                                        {colName}
-                                    </th>
-                                )
+                                indicesToShow.includes(index) &&
+                                ![columnNames?.length - 1, columnNames?.length - 2].includes(index) &&
+                                (!userFilter || (userFilter && validIndices.includes(index))) &&
+                                (index === 0 || (!dateFilter || filteredControls.has(colName))) &&
+                                <th key={index}>{colName}</th>
                             )
                         }
                     </tr>
                     <tr>
                         {
                             frequencyRow?.map((freq, index) =>
-                                indicesToShow.includes(index) && ![frequencyRow?.length - 1, frequencyRow?.length - 2].includes(index) && (allowedControlIndices.length === 0 || allowedControlIndices.includes(index)) && (
-                                    index === 0 || (!dateFilter || filteredControls.has(columnNames[index]))
-                                ) &&
+                                indicesToShow.includes(index) &&
+                                ![frequencyRow?.length - 1, frequencyRow?.length - 2].includes(index) &&
+                                (!userFilter || (userFilter && validIndices.includes(index))) &&
+                                (index === 0 || (!dateFilter || filteredControls.has(columnNames[index]))) &&
                                 <th key={index}>{freq}</th>
                             )
                         }
@@ -239,9 +251,10 @@ export default function StatusTable({
                     <tr>
                         {
                             riskRow?.map((risk, index) =>
-                                indicesToShow.includes(index) && ![riskRow?.length - 1, riskRow?.length - 2].includes(index) && (allowedControlIndices.length === 0 || allowedControlIndices.includes(index)) && (
-                                    index === 0 || (!dateFilter || filteredControls.has(columnNames[index]))
-                                ) &&
+                                indicesToShow.includes(index) &&
+                                ![riskRow?.length - 1, riskRow?.length - 2].includes(index) &&
+                                (!userFilter || (userFilter && validIndices.includes(index))) &&
+                                (index === 0 || (!dateFilter || filteredControls.has(columnNames[index]))) &&
                                 <th key={index}>{risk}</th>
                             )
                         }
@@ -261,18 +274,14 @@ export default function StatusTable({
                                 <tr key={index}>
                                     {
                                         Array.from({ length: columnNames.length }, (_, tdIndex) => tdIndex).map((tdIndex) =>
-                                            indicesToShow.includes(tdIndex)
-                                            && ![frequencyRow?.length - 1, frequencyRow?.length - 2].includes(tdIndex)
-                                            // && (allowedControlIndices.length === 0 || allowedControlIndices.includes(tdIndex))
-                                            // && (tdIndex === 0 || (!dateFilter || filteredControls.has(columnNames[tdIndex])))
-                                            &&
+                                            indicesToShow.includes(tdIndex) &&
+                                            ![frequencyRow?.length - 1, frequencyRow?.length - 2].includes(tdIndex) &&
+                                            (!userFilter || (userFilter && validIndices.includes(tdIndex))) &&
                                             (
                                                 <td key={tdIndex}>
                                                     {
                                                         <div style={tdStyles}>
                                                             {
-                                                                // cell && cell !== 'NAN'
-                                                                // matchingAppCntrlData.hasOwnProperty(row.APP_ID + ':' + columnNames[tdIndex]) &&
                                                                 (tdIndex === 0 || appArray.hasOwnProperty(row + ':' + appRegions[row] + ':' + columnNames[tdIndex] + ':' + currentMonthYear)) &&
                                                                 (
                                                                     <div onClick={() => {

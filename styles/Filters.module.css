@@ -8,6 +8,7 @@
     flex-wrap: wrap;
     gap: 20px;
     font-family: 'Poppins';
+    user-select: none;
 }
 
 .filterButtons {

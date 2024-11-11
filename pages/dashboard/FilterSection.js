@@ -1,7 +1,5 @@
-import { useState } from "react";
 import styles from "./../../styles/Filters.module.css"
-import { FaRegUser } from "react-icons/fa";
-import DatePicker from "react-datepicker";
+import { FaRegUser, FaUser } from "react-icons/fa";
 import "react-datepicker/dist/react-datepicker.css";
 
 export default function FilterSection({
@@ -102,10 +100,12 @@ export default function FilterSection({
                 >Key Control</div>
             </div>
             <div className={styles.filterButtons}>
-                {/* <div onClick={() => setUserFilter(!userFilter)}>
-                    <FaRegUser /><br />
+                <div
+                    style={{ fontSize: '30px', cursor: 'pointer' }}
+                    onClick={() => setUserFilter(!userFilter)}
+                >
+                    {!userFilter ? <FaRegUser /> : <FaUser />}
                 </div>
-                {userFilter.toString()} */}
                 <div className={styles.filter}
                     style={isClicked?.includes("Overdue") ? { backgroundColor: '#FFF', border: '2px solid red', color: 'red' } : { backgroundColor: "red" }}
                     onClick={() => handleAppStatus("Overdue")}

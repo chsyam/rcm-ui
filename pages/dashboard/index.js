@@ -3,12 +3,10 @@ import { useEffect, useState } from "react";
 import StatusTable from "@/components/StatusTable";
 import FilterSection from "./FilterSection";
 import styles from "@/styles/index.module.css"
-import Navbar from "@/components/Navbar";
 import { decrypt } from "../api/auth/lib";
 import TitleBar from "@/components/TitleBar";
 
 export default function Home({ data, report, userData }) {
-    console.log("userData", userData)
     const [userName, setUserName] = useState(userData?.username);
     const [startDate, setStartDate] = useState(new Date());
     const [isClicked, setIsClicked] = useState([]);
